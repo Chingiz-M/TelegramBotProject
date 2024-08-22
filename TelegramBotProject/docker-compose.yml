@@ -1,0 +1,9 @@
+﻿version: '2.21.0'
+
+services:
+  app:
+    build:
+      context: .
+    volumes:
+      - /home/Projects/DB_BOT:/DB
+      - /home/Projects/Logs_Bot:/TelegramBotProject/Logs
