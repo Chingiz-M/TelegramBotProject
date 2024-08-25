@@ -121,8 +121,8 @@ namespace TelegramBotProject.BaseClasses
                     logger.LogInformation("Создан конфиг пользователя IPSeq chatid: {chatid}", chatid);
 
                     await botClient.SendTextMessageAsync(1278048494, $"Добавлен пользователь {fileextension} IPSec: {chatid}"); // присылаю себе ответ по добавлению
-                    if (chatid != 1278048494)
-                        await botClient.SendTextMessageAsync(chatid, $"Добавлен пользователь {fileextension} IPSec: {chatid}"); // присылаю ответ по добавлению
+                    //if (chatid != 1278048494)
+                    //    await botClient.SendTextMessageAsync(chatid, $"Добавлен пользователь {fileextension} IPSec: {chatid}"); // присылаю ответ по добавлению
 
                 }
             }

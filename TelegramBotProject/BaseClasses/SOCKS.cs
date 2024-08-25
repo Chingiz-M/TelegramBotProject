@@ -63,16 +63,16 @@ namespace TelegramBotProject.BaseClasses
 
                             logger.LogInformation("Создан пользователь Socks, chatid: {chatid}, key_id: {id_client}", chatid, id_client);
                             await botClient.SendTextMessageAsync(1278048494, $"Добавлен пользователь Socks: {chatid}"); // присылаю себе ответ по добавлению
-                            if(chatid != 1278048494)
-                                await botClient.SendTextMessageAsync(chatid, $"Добавлен пользователь Socks: {chatid}"); // присылаю ответ по добавлению
+                            //if(chatid != 1278048494)
+                            //    await botClient.SendTextMessageAsync(chatid, $"Добавлен пользователь Socks: {chatid}"); // присылаю ответ по добавлению
 
                         }
                         else
                         {
                             logger.LogError("Ответ с сервера носков не пришел метод CreateUserAsync, chatid: {chatid}", chatid);
                             await botClient.SendTextMessageAsync(1278048494, $"Ответ с сервера носков не пришел метод CreateUserAsync"); // присылаю себе ответ по добавлению
-                            if (chatid != 1278048494)
-                                await botClient.SendTextMessageAsync(chatid, $"Ответ с сервера носков не пришел метод CreateUserAsync"); // присылаю себе ответ по добавлению
+                            //if (chatid != 1278048494)
+                            //    await botClient.SendTextMessageAsync(chatid, $"Ответ с сервера носков не пришел метод CreateUserAsync"); // присылаю себе ответ по добавлению
                         }
 
                     }

@@ -12,7 +12,7 @@ public class UserDB
     public string? Username { get; set; }
     public DateTime DateCreate { get; set; } = DateTime.Now;
     public DateTime? DateDisconnect { get; set; }
-    public DateTime DateNextPayment { get; set; } = DateTime.Now.AddMonths(1); // по умолчанию месяц пробный период
+    public DateTime DateNextPayment { get; set; } = DateTime.Now.AddDays(14); // по умолчанию месяц пробный период
     public string? ProviderPaymentChargeId { get; set; } // номер транзакции. По нему можно будет найти платёж в личном кабинете.
     public string Role { get; set; } = "user";
     public bool Blatnoi { get; set; } = false;

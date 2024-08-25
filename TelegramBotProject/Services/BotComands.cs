@@ -62,7 +62,7 @@ namespace TelegramBotProject.Services
                         $"🚀 Высокую скорость\n" +
                         $"🌗 Выбор из двух наиболее актуальных типов подключения\n" +
                         $"💳 Возможность оплаты картами РФ\n" +
-                        $"💰 Бесплатный пробный месяц и самую низкую цену на рынке!\n\n" +
+                        $"💰 Бесплатный пробный период в 2 недели и самую низкую цену на рынке!\n\n" +
                         $"Стоимость подписки после пробного периода составит 99 ₽/мес.\n\n" +
                         $"Действует реферальная система: пригласите 3 друзей в наш сервис и получите 3 месяца бесплатно.";
         #endregion
@@ -91,7 +91,7 @@ namespace TelegramBotProject.Services
         { 
             foreach (var item in TgBotHostedService.IPSEC_SERVERS_LIST)
             {
-                if(item != "IPSEC_1")
+                if(item != "IPSEC_1" || item != "IPSEC_4")
                 {
                     var temp_server = ipsecResolver(item);
                     var count_users = await temp_server.GetTotalUserAsync();
@@ -684,8 +684,8 @@ namespace TelegramBotProject.Services
             //await using Stream stream = System.IO.File.OpenRead(@"C:\Users\chin1\source\repos\TgBotNamelessNetwork\VideoInstructions\instruction_IOS_IPSEC_NEW.mp4");
             var mes = await botClient.SendVideoAsync(
             chatId: chatID,
-            //video: "BAACAgIAAxkDAAIUUWYHJaIibWl1V3tdreo9O829c6EvAAKAQAACT21BSKKYYspolrvkNAQ"); // fileid video ios ipsec NamelessNetwork
-              video: "BAACAgIAAxkBAAPXZJ9ombTpDVjZdPbUrIUnqI_H4KMAAjA0AAL0QfhIJJN1oofbubovBA"); // fileid video ios ipsec TestNamelessVPN
+            video: "BAACAgIAAxkDAAIUUWYHJaIibWl1V3tdreo9O829c6EvAAKAQAACT21BSKKYYspolrvkNAQ"); // fileid video ios ipsec NamelessNetwork
+        //video: "BAACAgIAAxkBAAPXZJ9ombTpDVjZdPbUrIUnqI_H4KMAAjA0AAL0QfhIJJN1oofbubovBA"); // fileid video ios ipsec TestNamelessVPN
                                                                                                 //video: new InputOnlineFile(content: stream, fileName: $"Тестовая инструкция"));
 
             await ipsecServer.CreateUserConfigAsync(botClient, chatID, "getconf", "mobileconfig"); // Отправка данных на сервер и формирование конфига. Отсылка готового конфига пользователю
@@ -723,9 +723,9 @@ namespace TelegramBotProject.Services
             //await using Stream stream = System.IO.File.OpenRead(@"C:\Users\chin1\source\repos\TelegramBotProject\instruction_Android_IPSec.mp4");
             var mes = await botClient.SendVideoAsync(
             chatId: chatID,
-            //video: "BAACAgIAAxkDAANmZWekmIC3iGr0G-cTk9eovK1ts_UAAuU0AAIlBUFLUNBOX1gAARJaMwQ"); // fileid video NamelessNetwork
-            video: "BAACAgIAAxkBAAOsZJ9CPCG7Nrfw9Ip3iJ69Z4Dxk0kAAo8tAAIh_wFJw_dGYKpZ5gkvBA"); // fileid video TestNamelessVPN
-                                                                                              //video: new InputOnlineFile(content: stream, fileName: $"Тестовая инструкция"));
+            video: "BAACAgIAAxkDAANmZWekmIC3iGr0G-cTk9eovK1ts_UAAuU0AAIlBUFLUNBOX1gAARJaMwQ"); // fileid video NamelessNetwork
+                                                                                               //video: "BAACAgIAAxkBAAOsZJ9CPCG7Nrfw9Ip3iJ69Z4Dxk0kAAo8tAAIh_wFJw_dGYKpZ5gkvBA"); // fileid video TestNamelessVPN
+                                                                                               //video: new InputOnlineFile(content: stream, fileName: $"Тестовая инструкция"));
 
             await ipsecServer.CreateUserConfigAsync(botClient, chatID, "getconfandroid", "p12"); // Отправка данных на сервер и формирование конфига. Отсылка готового конфига пользователю
 
@@ -760,9 +760,9 @@ namespace TelegramBotProject.Services
                 //await using Stream stream = System.IO.File.OpenRead(@"C:\Users\chin1\source\repos\TelegramBotProject\instruction_IOS_Socks.mp4");
                 var mes = await botClient.SendVideoAsync(
                 chatId: chatID,
-                //video: "BAACAgIAAxkDAANyZWiG0AABrL2md4eb79UH7ZcR9hAwAAIVOgACJQVBS_cx0M0jD2nHMwQ"); // fileid video NamelessNetwork
-                 video: "BAACAgIAAxkDAAIEuWVk4XVhHJietr3md_CsBlqB7qkfAAKSRgACFFsoS-6Q2XM11qLpMwQ"); // fileid video TestNamelessVPN
-                                         //video: new InputOnlineFile(content: stream, fileName: $"Тестовая инструкция"));
+                video: "BAACAgIAAxkDAANyZWiG0AABrL2md4eb79UH7ZcR9hAwAAIVOgACJQVBS_cx0M0jD2nHMwQ"); // fileid video NamelessNetwork
+                                                                                                   //video: "BAACAgIAAxkDAAIEuWVk4XVhHJietr3md_CsBlqB7qkfAAKSRgACFFsoS-6Q2XM11qLpMwQ"); // fileid video TestNamelessVPN
+                                                                                                   //video: new InputOnlineFile(content: stream, fileName: $"Тестовая инструкция"));
             }
             else // android
             {
@@ -771,8 +771,8 @@ namespace TelegramBotProject.Services
                 //await using Stream stream = System.IO.File.OpenRead(@"C:\Users\chin1\source\repos\TelegramBotProject\instruction_Android_Socks.mp4");
                 var mes = await botClient.SendVideoAsync(
                 chatId: chatID,
-                //video: "BAACAgIAAxkDAAP-ZWtTHDPYgBL6VNBgziSD_Hub36wAAms7AAItb1hLpnS9NuMaoDwzBA"); // fileid video NamelessNetwork
-                          video: "BAACAgIAAxkDAAIEy2Vk5AXzdL2PjAJ9sdK4L4FLRmwgAAKxRgACFFsoS8UG2N-cZVIwMwQ"); // fileid video TestNamelessVPN
+                video: "BAACAgIAAxkDAAP-ZWtTHDPYgBL6VNBgziSD_Hub36wAAms7AAItb1hLpnS9NuMaoDwzBA"); // fileid video NamelessNetwork
+            //video: "BAACAgIAAxkDAAIEy2Vk5AXzdL2PjAJ9sdK4L4FLRmwgAAKxRgACFFsoS8UG2N-cZVIwMwQ"); // fileid video TestNamelessVPN
                                 //video: new InputOnlineFile(content: stream, fileName: $"Тестовая инструкция"));
             }
 
