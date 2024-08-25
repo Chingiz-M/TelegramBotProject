@@ -77,6 +77,7 @@ namespace TelegramBotProject
                   services.AddTransient<IPsec_2>();
                   services.AddTransient<IPsec_3>();
                   services.AddTransient<IPsec_4>();
+                  services.AddTransient<IPsec_5>();
 
                   services.AddTransient<IPSecServiceResolver>(serviceProvider => key =>
                   {
@@ -92,6 +93,8 @@ namespace TelegramBotProject
                               return serviceProvider.GetService<IPsec_3>();
                           case "IPSEC_4":
                               return serviceProvider.GetService<IPsec_4>();
+                          case "IPSEC_5":
+                              return serviceProvider.GetService<IPsec_5>();
                           default:
                               throw new KeyNotFoundException(); // or maybe return null, up to you
                       }
