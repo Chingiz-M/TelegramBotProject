@@ -91,7 +91,7 @@ namespace TelegramBotProject.Services
         { 
             foreach (var item in TgBotHostedService.IPSEC_SERVERS_LIST)
             {
-                if(item != "IPSEC_1" || item != "IPSEC_4")
+                if(item != "IPSEC_1")
                 {
                     var temp_server = ipsecResolver(item);
                     var count_users = await temp_server.GetTotalUserAsync();
