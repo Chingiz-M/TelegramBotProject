@@ -22,5 +22,6 @@ namespace TelegramBotProject.Intarfaces
         Task<(ISocks1 socksServer, long id_newUser)> CreateAndSendKey_Socks(ITelegramBotClient botClient, long chatID, string os, int numserver);
         Task BotBeginFreePeriodAsync(ITelegramBotClient botClient, Telegram.Bot.Types.CallbackQuery button, string typeconnect);
         Task<int> BotSendMessageToUsersInDBAsync(ITelegramBotClient botClient, string typeService, string text);
+        Task BotCheckAndUsePromoAsync(ITelegramBotClient botClient, long chatID);
     }
 }

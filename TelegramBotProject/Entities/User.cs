@@ -23,4 +23,6 @@ public class UserDB
     public string NameOS { get; set; }// название ОС (ios ir andriod)
     public long ServiceKey { get; set; } // ключ для носков а для ipsec повтор chatid
     public string ServiceAddress { get; set; } // адрес сервака
+    public string TypeOfDevice { get; set; } = "mobile"; // вид устройства (mobile, computer)
+    public bool UsePromocode { get; set; } = false; // использование промокода
 }

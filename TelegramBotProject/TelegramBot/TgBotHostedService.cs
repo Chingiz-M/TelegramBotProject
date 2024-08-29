@@ -39,11 +39,14 @@ namespace TelegramBotProject.TelegramBot
         /// Переменная заглушка во время починки
         /// </summary>
         static private bool BOT_FIX_MODE { get; set; } = false;
-        static public string BotName { get; } = "84722_vpn";
+        static public string BotName { get; } = StartUp.GetTokenfromConfig("BotName");
         static public int Price_1_Month { get; } = 99;
         static public int Price_3_Month { get; } = 249;
         static public int CountINServerIpSec { get; set; } = 70; // максимум количесвто человек на сервере
         static public int CountINServerSocks { get; set; } = 35; // максимум количесвто человек на сервере
+        static public string PromocodeName { get; set; } = "testPromo";// промокод для участия в акциях
+        static public bool PROMOCODE_MODE { get; set; } = false; // переменная для включения и отключения действия промокода
+
 
         /// <summary>
         /// Список доступных серваков ipsec ПОРЯДОК ВАЖЕН ТАК КАК СОЗДАЮТСЯ NAMECERTAIN В КАЖДОМ КЛАССЕ
@@ -223,6 +226,39 @@ namespace TelegramBotProject.TelegramBot
                         return;
                     }
 
+
+                    /// <summary>
+                    /// Если сообщение от пользователя /switch_on_promo. Пользователь использует промокод
+                    /// </summary>
+                    var match_use_promocode = Regex.Match(message.Text.ToLower(), @"/switch_on_promo (\S+)");
+                    if (match_use_promocode.Success)
+                    {
+                        if (PROMOCODE_MODE) // если режим промокода включен
+                        {
+                            var usr = await botComands.BotCheckUserBDAsync(message.Chat.Id, 1);  // активный ли 
+
+                            if (usr != null) // пользователь есть в бд и активный
+                            {
+                                string promo_user = match_use_promocode.Groups[1].Value;
+
+                                if(PromocodeName == promo_user) // если промокоды совпадают
+                                {
+                                    await botComands.BotCheckAndUsePromoAsync(botClient, message.Chat.Id);
+                                }
+                                else
+                                    await botClient.SendTextMessageAsync(message.Chat.Id, "Промокод не верный, попробуйте снова.");
+
+                            }
+                            else
+                                await botClient.SendTextMessageAsync(message.Chat.Id, "Для того чтобы применить промокод необходимо быть активным пользователем.\n\n" +
+                                    "Выберите /start в меню для начала работы с ботом 👍");
+                        }
+                        else
+                            await botClient.SendTextMessageAsync(message.Chat.Id, "На данный момент нет активных промокодов 😢");                        
+
+                        return;
+                    }
+
                     #endregion
 
                     #region Admin Commands
@@ -361,6 +397,9 @@ namespace TelegramBotProject.TelegramBot
                         return;
                     }
 
+                    /// <summary>
+                    /// Если сообщение от пользователя /bot_fix_mode_true. Перевожу бота в режим починки
+                    /// </summary>
                     if (message.Text.ToLower() == "/bot_fix_mode_true")
                     {
                         if (message.Chat.Id == 1278048494) // только я могу переводить в режим починки
@@ -368,6 +407,9 @@ namespace TelegramBotProject.TelegramBot
                         return;
                     }
 
+                    /// <summary>
+                    /// Если сообщение от пользователя /bot_change_count_max_users_ipsec_in_server. Изменяю макс кол-во пользователей на серваках ipsec
+                    /// </summary>
                     var match_change_count_user_ipsec = Regex.Match(message.Text.ToLower(), @"/bot_change_count_max_users_ipsec_in_server (\d+)");
                     if (match_change_count_user_ipsec.Success)
                     {
@@ -379,6 +421,9 @@ namespace TelegramBotProject.TelegramBot
                         return;
                     }
 
+                    /// <summary>
+                    /// Если сообщение от пользователя /bot_change_count_max_users_socks_in_server. Изменяю макс кол-во пользователей на серваках socks
+                    /// </summary>
                     var match_change_count_user_socks = Regex.Match(message.Text.ToLower(), @"/bot_change_count_max_users_socks_in_server (\d+)");
                     if (match_change_count_user_socks.Success)
                     {
@@ -390,6 +435,54 @@ namespace TelegramBotProject.TelegramBot
                         return;
                     }
 
+                    /// <summary>
+                    /// Если сообщение от пользователя /bot_promocode_mode_true. Перевожу бота в режим принятия промокода
+                    /// </summary>
+                    if (message.Text.ToLower() == "/bot_promocode_mode_true")
+                    {
+                        await botClient.SendTextMessageAsync(message.Chat.Id, $"Режим промокода активирован");
+                        await botClient.SendTextMessageAsync(1278048494, $"Режим промокода активирован");
+
+                        PROMOCODE_MODE = true;
+                        return;
+                    }
+
+                    /// <summary>
+                    /// Если сообщение от пользователя /bot_promocode_mode_false. Перевожу бота в режим отключения промокодов
+                    /// </summary>
+                    if (message.Text.ToLower() == "/bot_promocode_mode_false")
+                    {
+                        await botClient.SendTextMessageAsync(message.Chat.Id, $"Режим промокода выключен");
+                        await botClient.SendTextMessageAsync(1278048494, $"Режим промокода выключен");
+
+                        PROMOCODE_MODE = false;
+                        return;
+                    }
+
+                    /// <summary>
+                    /// Если сообщение от пользователя /admin_update_promo. Изменяю действующий промокод в боте
+                    /// </summary>
+                    var match_update_promocode = Regex.Match(message.Text.ToLower(), @"/admin_update_promo (\S+)");
+                    if (match_update_promocode.Success)
+                    {
+                        PromocodeName = match_update_promocode.Groups[1].Value;
+
+                        await botClient.SendTextMessageAsync(message.Chat.Id, $"Успех, поменял промокод на {PromocodeName}");
+                        await botClient.SendTextMessageAsync(1278048494, $"Успех, поменял промокод на {PromocodeName}");
+                        return;
+                    }
+
+                    /// <summary>
+                    /// Если сообщение от пользователя /bot_current_promocode. Получаю действующий промокод в боте
+                    /// </summary>
+                    if (message.Text.ToLower() == "/bot_current_promocode")
+                    {
+                        await botClient.SendTextMessageAsync(message.Chat.Id, $"Режим промокодов в боте: {PROMOCODE_MODE}\n" +
+                            $"Текущий промокод: {PromocodeName}");
+                        await botClient.SendTextMessageAsync(1278048494, $"Режим промокодов в боте: {PROMOCODE_MODE}\n" +
+                            $"Текущий промокод: {PromocodeName}");
+                        return;
+                    }
                     #endregion
 
                     #region IPSec Features

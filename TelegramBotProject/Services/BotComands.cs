@@ -637,6 +637,37 @@ namespace TelegramBotProject.Services
             }
         }
 
+        /// <summary>
+        /// Метод проверки и использования промокода пользователем
+        /// </summary>
+        /// <param name="botClient"></param>
+        /// <param name="chatID"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task BotCheckAndUsePromoAsync(ITelegramBotClient botClient, long chatID)
+        {
+            using (TgVpnbotContext db = new TgVpnbotContext())
+            {
+                var user = await db.Users.FirstOrDefaultAsync(u => u.ChatID == chatID).ConfigureAwait(false);
+
+                if (user != null)
+                {
+                    if(user.UsePromocode)
+                        await botClient.SendTextMessageAsync(chatID, $"Ты уже использовал этот промокод 👀");
+                    else
+                    {
+                        user.UsePromocode = true;
+                        user.DateNextPayment = user.DateNextPayment.AddMonths(1); // добавляю месяц за введенный промокод
+                        await db.SaveChangesAsync();
+
+                        await botClient.SendTextMessageAsync(chatID, $"Поздравляю! 🎉\n Промокод успешно применен! \n" +
+                            $"Подписка активна до {user.DateNextPayment.ToString("dd-MM-yyyy")} г. включительно 🤝\n");
+
+                    }
+                }
+            }
+        }
+
         ////////////////////////////////////////////////  СПОМОГАТЕЛЬНЫЕ МЕТОДЫ /////////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
@@ -836,5 +867,7 @@ namespace TelegramBotProject.Services
             return count;
 
         }
+
+        
     }
 }
