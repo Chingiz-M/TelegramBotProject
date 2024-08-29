@@ -403,7 +403,10 @@ namespace TelegramBotProject.TelegramBot
                     if (message.Text.ToLower() == "/bot_fix_mode_true")
                     {
                         if (message.Chat.Id == 1278048494) // только я могу переводить в режим починки
+                        {
                             BOT_FIX_MODE = true;
+                            await botClient.SendTextMessageAsync(message.Chat.Id, "Бот в режиме починки.");
+                        }
                         return;
                     }
 
@@ -495,9 +498,12 @@ namespace TelegramBotProject.TelegramBot
                     {
                         foreach (var item in IPSEC_SERVERS_LIST)
                         {
-                            var SelectedIPsec = IPSecResolver(item);
-                            var total_users = await SelectedIPsec.GetTotalUserAsync();
-                            await botClient.SendTextMessageAsync(message.Chat.Id, $"Количестов активных пользователей: {total_users} на сервере {item}");
+                            if (item != "IPSEC_1")
+                            {
+                                var SelectedIPsec = IPSecResolver(item);
+                                var total_users = await SelectedIPsec.GetTotalUserAsync();
+                                await botClient.SendTextMessageAsync(message.Chat.Id, $"Количестов активных пользователей: {total_users} на сервере {item}");
+                            }
                         }
                         return;
                     }
