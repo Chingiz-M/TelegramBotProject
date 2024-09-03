@@ -226,6 +226,17 @@ namespace TelegramBotProject.TelegramBot
                         return;
                     }
 
+                    /// <summary>
+                    /// Если сообщение от пользователя /about_promo. Описание использования промокода
+                    /// </summary>
+                    if (message.Text.ToLower() == "/about_promo")
+                    {
+                        await botClient.SendTextMessageAsync(message.Chat.Id, $"Привет, здесь написано как использовать промокод! 🎟\n\n" +
+                            $"Отправь боту сообщение вида:\n" +
+                            $"\"/switch_on_promo PROMO\", где PROMO - название промокода.");
+                        return;
+                    }
+
 
                     /// <summary>
                     /// Если сообщение от пользователя /switch_on_promo. Пользователь использует промокод
@@ -241,7 +252,7 @@ namespace TelegramBotProject.TelegramBot
                             {
                                 string promo_user = match_use_promocode.Groups[1].Value;
 
-                                if(PromocodeName == promo_user) // если промокоды совпадают
+                                if(PromocodeName.ToLower() == promo_user.ToLower()) // если промокоды совпадают
                                 {
                                     await botComands.BotCheckAndUsePromoAsync(botClient, message.Chat.Id);
                                 }
@@ -484,6 +495,26 @@ namespace TelegramBotProject.TelegramBot
                             $"Текущий промокод: {PromocodeName}");
                         await botClient.SendTextMessageAsync(1278048494, $"Режим промокодов в боте: {PROMOCODE_MODE}\n" +
                             $"Текущий промокод: {PromocodeName}");
+                        return;
+                    }
+
+                    /// <summary>
+                    /// Если сообщение от пользователя /bot_take_off_promo_db. Убираю все галки в бд что пользователи использовали промокод 
+                    /// </summary>
+                    if (message.Text.ToLower() == "/bot_take_off_promo_db")
+                    {
+                        await botComands.BotTakeOffDBPromoAsync(botClient, message.Chat.Id);
+                        return;
+                    }
+
+                    /// <summary>
+                    /// Если сообщение от пользователя /bot_mark_blatnoi. Делаю пользователя блатным
+                    /// </summary>
+                    var match_mark_blatnoi = Regex.Match(message.Text.ToLower(), @"/bot_mark_blatnoi (\d+)");
+                    if (match_mark_blatnoi.Success)
+                    {
+                        long.TryParse(match_mark_blatnoi.Groups[1].Value, out long clientID);
+                        await botComands.BotMarkBlatnoiAsync(botClient, clientID, message.Chat.Id);
                         return;
                     }
                     #endregion

@@ -660,10 +660,60 @@ namespace TelegramBotProject.Services
                         user.DateNextPayment = user.DateNextPayment.AddMonths(1); // добавляю месяц за введенный промокод
                         await db.SaveChangesAsync();
 
-                        await botClient.SendTextMessageAsync(chatID, $"Поздравляю! 🎉\n Промокод успешно применен! \n" +
+                        await botClient.SendTextMessageAsync(chatID, $"Поздравляю! 🎉\nПромокод успешно применен! \n\n" +
                             $"Подписка активна до {user.DateNextPayment.ToString("dd-MM-yyyy")} г. включительно 🤝\n");
 
                     }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Метод который убирает галки об использовании промокода в бд всем пользователям
+        /// </summary>
+        /// <param name="botClient"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task BotTakeOffDBPromoAsync(ITelegramBotClient botClient, long chatID)
+        {
+            using (TgVpnbotContext db = new TgVpnbotContext())
+            {
+                List<UserDB> users = new List<UserDB>();
+                users = await db.Users.Where(u => u.UsePromocode == true).ToListAsync();
+
+                foreach(var user in users)
+                {
+                    user.UsePromocode = false;
+                }
+
+                await botClient.SendTextMessageAsync(chatID, $"Галки убраны у {users.Count} пользователей");
+                await botClient.SendTextMessageAsync(1278048494, $"Галки убраны у {users.Count} пользователей");
+
+                await db.SaveChangesAsync();
+
+            }
+        }
+
+        /// <summary>
+        /// Метод проверки и использования промокода пользователем
+        /// </summary>
+        /// <param name="botClient"></param>
+        /// <param name="chatID"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task BotMarkBlatnoiAsync(ITelegramBotClient botClient, long chatID, long adminID)
+        {
+            using (TgVpnbotContext db = new TgVpnbotContext())
+            {
+                var user = await db.Users.FirstOrDefaultAsync(u => u.ChatID == chatID).ConfigureAwait(false);
+
+                if (user != null)
+                {
+                    user.Blatnoi = true;
+                    await db.SaveChangesAsync();
+
+                    await botClient.SendTextMessageAsync(1278048494, $"Сделал пользователя {chatID} блатным");
+                    await botClient.SendTextMessageAsync(adminID, $"Сделал пользователя {chatID} блатным");
                 }
             }
         }
