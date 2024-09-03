@@ -135,7 +135,7 @@ namespace TelegramBotProject.TelegramBot
 
                         return;
                     }
-
+///////////////////////////////////////////
                     #region BotCommands
 
                     /// <summary>
@@ -271,7 +271,7 @@ namespace TelegramBotProject.TelegramBot
                     }
 
                     #endregion
-
+//////////////////////////////////////////
                     #region Admin Commands
 
                     /// <summary>
@@ -518,7 +518,7 @@ namespace TelegramBotProject.TelegramBot
                         return;
                     }
                     #endregion
-
+//////////////////////////////////////////
                     #region IPSec Features
 
                     /// <summary>
@@ -635,7 +635,7 @@ namespace TelegramBotProject.TelegramBot
                     }
 
                     #endregion
-
+//////////////////////////////////////////
                     #region Socks Features
 
                     var match_create_socks = Regex.Match(message.Text.ToLower(), @"/create_user_socks (\d+) server (\d+) os (\d+)");
@@ -655,7 +655,7 @@ namespace TelegramBotProject.TelegramBot
                             {
                                 user.Status = "active";
 
-                                Log.Information("Админ create_client_ipsec, активировал старого пользователя, chatid: {chatid}, ОС: {os}", clientID, os);
+                                Log.Information("Админ create_user_socks, активировал старого пользователя, chatid: {chatid}, ОС: {os}", clientID, os);
                             }
                             else // если новый пользователь
                             {
@@ -666,7 +666,7 @@ namespace TelegramBotProject.TelegramBot
 
                                 await db.Users.AddAsync(user);
 
-                                Log.Information("Админ create_client_ipsec, новый пользователь добавлен, chatid: {chatid}, ОС: {os}", clientID, os);
+                                Log.Information("Админ create_user_socks, новый пользователь добавлен, chatid: {chatid}, ОС: {os}", clientID, os);
                             }
 
                             
