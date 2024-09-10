@@ -124,9 +124,10 @@ namespace TelegramBotProject.Services
         
         public async Task BotStartAsync(ITelegramBotClient botClient, long chatid)
         {
-            var user = await BotCheckUserBDAsync(chatid, 2); // есть ли ваще
+            var user_mobile = await BotCheckUserBDAsync(chatid, 2); // есть ли ваще
+            var user_comp = await BotCheckUserBDAsync(chatid * TgBotHostedService.USERS_COMP, 2); // есть ли ваще id в бд для компов
 
-            if (user == null) // если нажал старт новый пользователь которого нет в бд
+            if (user_mobile == null) // если нажал старт новый пользователь которого нет в бд (если нет хотя бы одного или компа или мобилы)
             {
                 var button = InlineKeyboardButton.WithCallbackData("🔥 Попробовать бесплатный период 🔥", NamesInlineButtons.TryFreePeriod);
                 var row = new InlineKeyboardButton[] { button };
@@ -145,6 +146,48 @@ namespace TelegramBotProject.Services
                 await BotSelectServiceAsync(botClient, chatid, TgBotHostedService.TypeConnect.Payment);
             }
 
+        }
+
+        /// <summary>
+        /// Метод начала РАБОТЫ БОТА и переход на типа устройства (комп или мобила)
+        /// </summary>
+        /// <param name="botClient"> бот клиент </param>
+        /// <param name="chatid"> чат айди пользователя который голосует </param>
+        /// <param name="connect"> тип подключения бесплтаный или платный </param>
+        /// <returns></returns>
+        public async Task BotSelectTypeDeviceAsync(ITelegramBotClient botClient, long chatid, TgBotHostedService.TypeConnect connect)
+        {
+            string startText = $"Пожалуйста, выбери тип подключения:\n\n" +
+                $"🔹IPSec(IKEv2) — классический и самый быстрый мобильный протокол c шифрованием трафика — не нагружает устройство, напрямую поддерживается iOS, требует установки специального клиента на Android.\n\n" +
+                $"🔸Shadowsocks(Outline) — современный, наиболее стабильный и надёжный протокол, основанный на маскирующем прокси SOCKS5 — минимально нагружает устройство, требует установки специального клиента с простейшей настройкой.\n\n";
+
+            InlineKeyboardButton? button1 = null;
+            InlineKeyboardButton? button2 = null;
+
+
+            //switch (connect)
+            //{
+            //    case TgBotHostedService.TypeConnect.Free:
+
+            //        button1 = InlineKeyboardButton.WithCallbackData("IPSec(IKEv2) 🔴", NamesInlineButtons.TryFreePeriod_IpSec);
+            //        button2 = InlineKeyboardButton.WithCallbackData("Shadowsocks(Outline) 🔵", NamesInlineButtons.TryFreePeriod_Socks);
+            //        startText += "(Бесплатный период)";
+
+            //        break;
+            //    case TgBotHostedService.TypeConnect.Payment:
+
+            //        button1 = InlineKeyboardButton.WithCallbackData("IPSec(IKEv2) 🔴", NamesInlineButtons.StartIPSEC);
+            //        button2 = InlineKeyboardButton.WithCallbackData("Shadowsocks(Outline) 🔵", NamesInlineButtons.StartSocks);
+
+            //        break;
+            //    default:
+            //        break;
+            //}
+
+            var row1 = new InlineKeyboardButton[] { button1, button2 };
+            var keyboard = new Telegram.Bot.Types.ReplyMarkups.InlineKeyboardMarkup(row1);
+
+            await botClient.SendTextMessageAsync(chatid, startText, replyMarkup: keyboard);
         }
 
         /// <summary>

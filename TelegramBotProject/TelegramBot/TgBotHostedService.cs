@@ -46,6 +46,7 @@ namespace TelegramBotProject.TelegramBot
         static public int CountINServerSocks { get; set; } = 35; // максимум количесвто человек на сервере
         static public string PromocodeName { get; set; } = "testPromo";// промокод для участия в акциях
         static public bool PROMOCODE_MODE { get; set; } = false; // переменная для включения и отключения действия промокода
+        static public int USERS_COMP { get; set; } = 10; // число на которое умножается chaid пользователя для получения id для компа для этого пользователя
 
 
         /// <summary>
@@ -833,6 +834,7 @@ namespace TelegramBotProject.TelegramBot
 
                         if(userDB == null) // если пользователя нет в БД, то он может нажимать на бесплатные кнопки
                         {
+////////////////////////////////////////////////////////////////
                             #region START Free period
 
                             // START Free period BUTTON
@@ -840,7 +842,7 @@ namespace TelegramBotProject.TelegramBot
                                 await botComands.BotSelectServiceAsync(botClient, button.Message.Chat.Id, TypeConnect.Free);
 
                             #endregion
-
+///////////////////////////////////////////////////////////////
                             #region START FREE Services
 
                             // START FREE BUTTONS
@@ -851,7 +853,7 @@ namespace TelegramBotProject.TelegramBot
                                 await botComands.BotSelectOpSysAsync(botClient, button.Message.Chat.Id, button.Message.Chat?.FirstName, NamesInlineButtons.TryFreePeriod_Socks);
 
                             #endregion
-
+///////////////////////////////////////////////////////////////
                             #region FREE Servers and Services 
 
                             // Free IPSec1 BUTTONS
@@ -879,7 +881,7 @@ namespace TelegramBotProject.TelegramBot
                                     "Выберите /start в меню для начала работы с ботом");
                             }                           
                         }
-
+///////////////////////////////////////////////////////////////
                         #region START Payment Services
 
                         // START BUTTONS
@@ -890,7 +892,7 @@ namespace TelegramBotProject.TelegramBot
                             await botComands.BotSelectOpSysAsync(botClient, button.Message.Chat.Id, button.Message.Chat?.FirstName, NamesInlineButtons.StartSocks);
 
                         #endregion
-
+///////////////////////////////////////////////////////////////
                         #region Payment Servers and Services          
 
                         // IPSec1 BUTTONS
@@ -906,7 +908,7 @@ namespace TelegramBotProject.TelegramBot
                             await botComands.BotSelectSendInvoiceAsync(botClient, button.Message.Chat.Id, NamesInlineButtons.Socks_android);
 
                         #endregion
-
+///////////////////////////////////////////////////////////////
                         #region Poriod Payment every servers and every services
 
                         // Если в Servers and Services регионе 4 строчки то тут должно быть 4* на количестов пакетов подписки (1мес и 3 мес это 2 пакета) итого 4*2=8
