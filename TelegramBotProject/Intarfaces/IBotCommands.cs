@@ -9,7 +9,7 @@ namespace TelegramBotProject.Intarfaces
     {
         Task BotStartAsync(ITelegramBotClient botClient, long chatid);
         Task BotSelectServiceAsync(ITelegramBotClient botClient, long chatid, TgBotHostedService.TypeConnect connect);
-        Task BotSelectTypeDeviceAsync(ITelegramBotClient botClient, long chatid, TgBotHostedService.TypeConnect connect);
+        Task BotStartBotSelectTypeDeviceAsync(ITelegramBotClient botClient, long chatid);
         Task BotSelectOpSysAsync(ITelegramBotClient botClient, long chatid, string? FirstName, string ServiceName);
         Task BotSelectSendInvoiceAsync(ITelegramBotClient botClient, long chatid, string typepayment);
         Task BotSendInvoiceAsync(ITelegramBotClient botClient, long chatid, string typepayment, int months);

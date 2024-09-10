@@ -153,7 +153,8 @@ namespace TelegramBotProject.TelegramBot
                     /// </summary>
                     if (message.Text.ToLower() == "/start")
                     {
-                        await botComands.BotStartAsync(botClient, message.Chat.Id);
+                        //await botComands.BotStartAsync(botClient, message.Chat.Id);
+                        await botComands.BotStartBotSelectTypeDeviceAsync(botClient, message.Chat.Id);
                         return;
                     }
 
@@ -800,6 +801,13 @@ namespace TelegramBotProject.TelegramBot
 
                     Log.Information("Нажата кнопка {inlineButton} пользователь: {firstName}, chatid: {chatid}", button.Data, button.Message.Chat?.FirstName, button.Message.Chat.Id);
 
+                    // START BOT
+                    if (button.Data == NamesInlineButtons.StartMobile)
+                        await botComands.BotStartAsync(botClient, button.Message.Chat.Id);
+
+                    if (button.Data == NamesInlineButtons.StartComp)
+                        await botComands.BotSelectServiceAsync(botClient, button.Message.Chat.Id, TypeConnect.Free);
+
                     #region CONTINUE_PAYMENT
 
                     // SELECT PERIOD CONTINUE_PAYMENT
@@ -834,7 +842,6 @@ namespace TelegramBotProject.TelegramBot
 
                         if(userDB == null) // если пользователя нет в БД, то он может нажимать на бесплатные кнопки
                         {
-////////////////////////////////////////////////////////////////
                             #region START Free period
 
                             // START Free period BUTTON

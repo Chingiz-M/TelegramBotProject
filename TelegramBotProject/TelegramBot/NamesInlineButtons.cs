@@ -3,6 +3,15 @@
     internal class NamesInlineButtons
     {
         /// <summary>
+        /// переменная для выбора конфига для мобильных устройств
+        /// </summary>
+        static public string StartMobile { get; } = "Mobile_conf";
+
+        /// <summary>
+        /// переменная для выбора конфига для компа, ноута
+        /// </summary>
+        static public string StartComp { get; } = "Comp_conf";
+        /// <summary>
         /// переменная для обозначения продления оплаты действующему пользователю
         /// </summary>
         static public string ContinuePayment { get; } = "continue_pay";
