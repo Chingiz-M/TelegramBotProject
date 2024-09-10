@@ -47,6 +47,8 @@ namespace TelegramBotProject
 
                   services.AddHostedService<TgBotHostedService>();
                   services.AddTransient<IBotCommands, BotComands>();
+                  services.AddTransient<IMobileMethods, MobileMethods>();
+                  services.AddTransient<ICompMethods, CompMethods>();
 
                   // SOCKS SETTINGS
                   services.AddTransient<SOCKS>();
@@ -121,7 +123,7 @@ namespace TelegramBotProject
                                                                //    .RepeatForever()));
                                                                //.WithCronSchedule("0 */2 * ? * *")); // run every 2 min
                                                                                                     .WithCronSchedule("0 0 12 ? * * *")); // run every day at 12 o'clock at London
-              });
+                   });
 
                   services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
