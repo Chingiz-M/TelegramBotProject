@@ -2,23 +2,14 @@
 {
     internal class NamesInlineButtons
     {
-        /// <summary>
-        /// переменная для выбора конфига для мобильных устройств
-        /// </summary>
-        static public string StartMobile { get; } = "Mobile_conf";
 
-        /// <summary>
-        /// переменная для выбора конфига для компа, ноута
-        /// </summary>
-        static public string StartComp { get; } = "Comp_conf";
-        /// <summary>
-        /// переменная для обозначения продления оплаты действующему пользователю
-        /// </summary>
-        static public string ContinuePayment { get; } = "continue_pay";
-        /// <summary>
-        /// переменная для пробного периода новому пользователю
-        /// </summary>
-        static public string TryFreePeriod { get; } = "TryFreePeriod";
+        #region Mobile
+
+        static public string StartMobile { get; } = "Mobile_config";        // переменная для выбора конфига для мобильных устройств
+
+        static public string ContinuePayment { get; } = "continue_pay";   // переменная для обозначения продления оплаты действующему пользователю
+
+        static public string Mobile_TryFreePeriod { get; } = "Mobile_TryFreePeriod"; // переменная для пробного периода новому пользователю
 
         static public string AllUsers { get; } = $"AllUsers";
         static public string IPSEC { get; } = $"IPSec";
@@ -55,16 +46,35 @@
 
 
         #region FreePeriod
-        static public string TryFreePeriod_IpSec { get; } = $"{TryFreePeriod}_{StartIPSEC}"; // TryFreePeriod_Button_IPSec
-        static public string TryFreePeriod_Socks { get; } = $"{TryFreePeriod}_{StartSocks}"; // TryFreePeriod_Button_Socks
+        static public string Mobile_TryFreePeriod_IpSec { get; } = $"{Mobile_TryFreePeriod}_{StartIPSEC}"; // Mobile_TryFreePeriod_Button_IPSec
+        static public string Mobile_TryFreePeriod_Socks { get; } = $"{Mobile_TryFreePeriod}_{StartSocks}"; // Mobile_TryFreePeriod_Button_Socks
 
 
-        static public string TryFreePeriod_IpSec_ios { get; } = $"{TryFreePeriod_IpSec}_{IOS}";         // TryFreePeriod_Button_IPSec_ios
-        static public string TryFreePeriod_IpSec_android { get; } = $"{TryFreePeriod_IpSec}_{Android}"; // TryFreePeriod_Button_IPSec_android
+        static public string Mobile_TryFreePeriod_IpSec_ios { get; } = $"{Mobile_TryFreePeriod_IpSec}_{IOS}";         // Mobile_TryFreePeriod_Button_IPSec_ios
+        static public string Mobile_TryFreePeriod_IpSec_android { get; } = $"{Mobile_TryFreePeriod_IpSec}_{Android}"; // Mobile_TryFreePeriod_Button_IPSec_android
 
 
-        static public string TryFreePeriod_Socks_ios { get; } = $"{TryFreePeriod_Socks}_{IOS}";         // TryFreePeriod_Button_Socks_ios
-        static public string TryFreePeriod_Socks_android { get; } = $"{TryFreePeriod_Socks}_{Android}"; // TryFreePeriod_Button_Socks_android
+        static public string Mobile_TryFreePeriod_Socks_ios { get; } = $"{Mobile_TryFreePeriod_Socks}_{IOS}";         // Mobile_TryFreePeriod_Button_Socks_ios
+        static public string Mobile_TryFreePeriod_Socks_android { get; } = $"{Mobile_TryFreePeriod_Socks}_{Android}"; // Mobile_TryFreePeriod_Button_Socks_android
+
+        #endregion
+
+        #endregion
+
+        #region Comp
+
+        static public string StartComp { get; } = "Comp_config";  // переменная для выбора конфига для компа, ноута
+
+        static public string Windows { get; } = $"Windows";
+        static public string MacOS { get; } = $"MacOS";
+
+        static public string Comp_TryFreePeriod { get; } = "Comp_TryFreePeriod";                            // переменная для пробного периода новому пользователю
+        static public string Comp_TryFreePeriod_Windows { get; } = $"{Comp_TryFreePeriod}_{Windows}";       // Comp_TryFreePeriod_Windows
+        static public string Comp_TryFreePeriod_MacOS { get; } = $"{Comp_TryFreePeriod}_{MacOS}";           // Comp_TryFreePeriod_MacOS
+
+        static public string Comp_Payment { get; } = "Comp_Payment";                                        // переменная для платного периода
+        static public string Comp_Payment_Windows { get; } = $"{Comp_Payment}_{Windows}";                   // Comp_Payment_Windows
+        static public string Comp_Payment_MacOS { get; } = $"{Comp_Payment}_{MacOS}";                       // Comp_Payment_MacOS
 
         #endregion
 

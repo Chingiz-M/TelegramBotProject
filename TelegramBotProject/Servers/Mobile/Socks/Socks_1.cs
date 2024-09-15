@@ -2,7 +2,7 @@
 using TelegramBotProject.BaseClasses;
 using TelegramBotProject.TelegramBot;
 
-namespace TelegramBotProject.Services
+namespace TelegramBotProject.Servers.Mobile.Socks
 {
     internal class Socks_1 : SOCKS
     {
@@ -10,6 +10,6 @@ namespace TelegramBotProject.Services
         {
             ServerSocks = "http://94.131.114.216:8433";
             NameCertainSocks = TgBotHostedService.SOCKS_SERVERS_LIST[0]; // SOCKS_1
-        }     
+        }
     }
 }

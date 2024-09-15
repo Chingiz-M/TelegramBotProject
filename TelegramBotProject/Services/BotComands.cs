@@ -154,11 +154,10 @@ namespace TelegramBotProject.Services
         public async Task BotStartAsync(ITelegramBotClient botClient, long chatid)
         {
             var user_mobile = await BotCheckUserBDAsync(chatid, 2); // есть ли ваще
-            var user_comp = await BotCheckUserBDAsync(chatid * TgBotHostedService.USERS_COMP, 2); // есть ли ваще id в бд для компов
 
             if (user_mobile == null) // если нажал старт новый пользователь которого нет в бд (если нет хотя бы одного или компа или мобилы)
             {
-                var button = InlineKeyboardButton.WithCallbackData("🔥 Попробовать бесплатный период 🔥", NamesInlineButtons.TryFreePeriod);
+                var button = InlineKeyboardButton.WithCallbackData("🔥 Попробовать бесплатный период 🔥", NamesInlineButtons.Mobile_TryFreePeriod);
                 var row = new InlineKeyboardButton[] { button };
                 var keyboard = new Telegram.Bot.Types.ReplyMarkups.InlineKeyboardMarkup(row);
 
@@ -178,7 +177,7 @@ namespace TelegramBotProject.Services
         }     
 
         /// <summary>
-        /// Метод начала пробного периода и переход на выбор сервиса
+        /// Метод выбор сервиса и начало пробного либо платного периодов
         /// </summary>
         /// <param name="botClient"> бот клиент </param>
         /// <param name="chatid"> чат айди пользователя который голосует </param>
@@ -198,8 +197,8 @@ namespace TelegramBotProject.Services
             {
                 case TgBotHostedService.TypeConnect.Free:
 
-                    button1 = InlineKeyboardButton.WithCallbackData("IPSec(IKEv2) 🔴", NamesInlineButtons.TryFreePeriod_IpSec);
-                    button2 = InlineKeyboardButton.WithCallbackData("Shadowsocks(Outline) 🔵", NamesInlineButtons.TryFreePeriod_Socks);
+                    button1 = InlineKeyboardButton.WithCallbackData("IPSec(IKEv2) 🔴", NamesInlineButtons.Mobile_TryFreePeriod_IpSec);
+                    button2 = InlineKeyboardButton.WithCallbackData("Shadowsocks(Outline) 🔵", NamesInlineButtons.Mobile_TryFreePeriod_Socks);
                     startText += "(Бесплатный период)";
 
                     break;
@@ -235,7 +234,7 @@ namespace TelegramBotProject.Services
             var keyboard = new Telegram.Bot.Types.ReplyMarkups.InlineKeyboardMarkup(row1);
 
             var s_name = string.Empty;
-            if (ServiceName == NamesInlineButtons.StartIPSEC || ServiceName == NamesInlineButtons.TryFreePeriod_IpSec)
+            if (ServiceName == NamesInlineButtons.StartIPSEC || ServiceName == NamesInlineButtons.Mobile_TryFreePeriod_IpSec)
                 s_name = "IPSec(IKEV2)";
             else
                 s_name = "Shadowsocks(Outline)";
@@ -273,7 +272,7 @@ namespace TelegramBotProject.Services
                         FirstName = button.Message.Chat?.FirstName,
                         Username = button.Message.Chat?.Username,
                         ChatID = chatID,
-                        ProviderPaymentChargeId = NamesInlineButtons.TryFreePeriod,
+                        ProviderPaymentChargeId = NamesInlineButtons.Mobile_TryFreePeriod,
                     };
 
                     await botClient.SendTextMessageAsync(chatID, $"Бесплатный период начался! ✅\n\n" +
@@ -286,7 +285,7 @@ namespace TelegramBotProject.Services
                     (ISocks1 socksServer, long id_newUser) resFuncSocksServer = (null, 0);
 
                     // IOS
-                    if (typeconnect == NamesInlineButtons.TryFreePeriod_IpSec_ios)
+                    if (typeconnect == NamesInlineButtons.Mobile_TryFreePeriod_IpSec_ios)
                     {
                         ipsecServer = await CreateAndSendConfig_IpSec_IOS(botClient, chatID, -1);
 
@@ -296,7 +295,7 @@ namespace TelegramBotProject.Services
                         user.ServiceAddress = ipsecServer.ServerIPSec;
                     }
                     // ANDROID
-                    else if (typeconnect == NamesInlineButtons.TryFreePeriod_IpSec_android)
+                    else if (typeconnect == NamesInlineButtons.Mobile_TryFreePeriod_IpSec_android)
                     {
                         ipsecServer = await CreateAndSendConfig_IpSec_Android(botClient, chatID, -1);
 
@@ -305,7 +304,7 @@ namespace TelegramBotProject.Services
                         user.ServiceKey = chatID;
                         user.ServiceAddress = ipsecServer.ServerIPSec;
                     }
-                    else if (typeconnect == NamesInlineButtons.TryFreePeriod_Socks_ios)
+                    else if (typeconnect == NamesInlineButtons.Mobile_TryFreePeriod_Socks_ios)
                     {
                         resFuncSocksServer = await CreateAndSendKey_Socks(botClient, chatID, NamesInlineButtons.IOS, -1);
 
@@ -314,7 +313,7 @@ namespace TelegramBotProject.Services
                         user.ServiceKey = resFuncSocksServer.id_newUser;
                         user.ServiceAddress = resFuncSocksServer.socksServer.ServerSocks;
                     }
-                    else if (typeconnect == NamesInlineButtons.TryFreePeriod_Socks_android)
+                    else if (typeconnect == NamesInlineButtons.Mobile_TryFreePeriod_Socks_android)
                     {
                         resFuncSocksServer = await CreateAndSendKey_Socks(botClient, chatID, NamesInlineButtons.Android, -1);
 
@@ -571,7 +570,7 @@ namespace TelegramBotProject.Services
                 var ref_user = await db.Users.FirstOrDefaultAsync(u => u.ChatID == chatid && u.Status == "active"); // проверяю есть ли такой активный пользователь и может ли голосовать
                 if (ref_user != null)
                 {
-                    if(ref_user.ProviderPaymentChargeId == NamesInlineButtons.TryFreePeriod)
+                    if(ref_user.ProviderPaymentChargeId == NamesInlineButtons.Mobile_TryFreePeriod)
                     {
                         await botClient.SendTextMessageAsync(chatid, $"Увы, реферальная программа не действует на пробном периоде 😢");
                         return;
@@ -780,7 +779,7 @@ namespace TelegramBotProject.Services
         public async Task<IIPsec1> CreateAndSendConfig_IpSec_IOS(ITelegramBotClient botClient, long chatID, int numserver)
         {
             string ipsec_server_name = string.Empty;
-            if (numserver > 0)
+            if (numserver > 0) // условие для команд админа
             {
                 ipsec_server_name = TgBotHostedService.IPSEC_SERVERS_LIST[numserver - 1];
             }
@@ -788,7 +787,7 @@ namespace TelegramBotProject.Services
             {
                 ipsec_server_name = await BotIPsecConfigBalanserAsync();
             }
-            var ipsecServer = ipsecResolver(ipsec_server_name); // СОЗДАЮ КОНКРЕТНЫЙ СЕРВЕР ГДЕ МЕНЬШЕ 100 КОНФИГОВ
+            var ipsecServer = ipsecResolver(ipsec_server_name); // СОЗДАЮ КОНКРЕТНЫЙ СЕРВЕР ГДЕ МЕНЬШЕ 70 КОНФИГОВ
 
             await botClient.SendTextMessageAsync(chatID, IosInstructionIPSec);
 

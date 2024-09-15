@@ -2,7 +2,7 @@
 using TelegramBotProject.BaseClasses;
 using TelegramBotProject.TelegramBot;
 
-namespace TelegramBotProject.Services
+namespace TelegramBotProject.Servers.Mobile.Socks
 {
     internal class Socks_2 : SOCKS
     {

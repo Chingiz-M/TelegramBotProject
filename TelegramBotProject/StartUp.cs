@@ -8,6 +8,9 @@ using Serilog;
 using TelegramBotProject.BaseClasses;
 using TelegramBotProject.Intarfaces;
 using TelegramBotProject.Quartz;
+using TelegramBotProject.Servers.Comp;
+using TelegramBotProject.Servers.Mobile.IPSEC;
+using TelegramBotProject.Servers.Mobile.Socks;
 using TelegramBotProject.Services;
 using TelegramBotProject.TelegramBot;
 
@@ -15,6 +18,7 @@ namespace TelegramBotProject
 {
     public class StartUp
     {
+        internal delegate IIPsec1 Comp_IPSecServiceResolver(string key);
         internal delegate IIPsec1 IPSecServiceResolver(string key);
         internal delegate ISocks1 SOCKSServiceResolver(string key);
 
@@ -97,6 +101,20 @@ namespace TelegramBotProject
                               return serviceProvider.GetService<IPsec_4>();
                           case "IPSEC_5":
                               return serviceProvider.GetService<IPsec_5>();
+                          default:
+                              throw new KeyNotFoundException(); // or maybe return null, up to you
+                      }
+                  });
+
+                  // COMP IPSEC SETTINGS
+                  services.AddTransient<Comp_IPsec_1>();
+
+                  services.AddTransient<Comp_IPSecServiceResolver>(serviceProvider => key =>
+                  {
+                      switch (key)
+                      {
+                          case "Comp_IPSEC_1":
+                              return serviceProvider.GetService<Comp_IPsec_1>();
                           default:
                               throw new KeyNotFoundException(); // or maybe return null, up to you
                       }

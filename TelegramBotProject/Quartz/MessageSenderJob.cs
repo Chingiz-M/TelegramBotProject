@@ -46,6 +46,7 @@ namespace TelegramBotProject.Quartz
                     var users_payment_0 = await db.Users.Where(u => u.DateNextPayment.Date == DateTime.Now.AddDays(-1).Date && u.Status == "active" && u.Blatnoi == false).ToListAsync().ConfigureAwait(false);
 
                     int count_continue = users_payment_3.Count + users_payment_2.Count + users_payment_1.Count;
+                    int count_deleted_users = 0;
 
                     var date_3 = DateTime.Now.AddDays(3).ToString("dd-MM-yyyy");
                     var date_2 = DateTime.Now.AddDays(2).ToString("dd-MM-yyyy");
@@ -119,10 +120,12 @@ namespace TelegramBotProject.Quartz
                                 $"Ты всегда можешь возобновить свою подписку и выбрать вариант подключения нажав /start");
 
                             logger.LogInformation("Конфиг пользователя удален, chatid: {chatid}", user.ChatID);
+                            count_deleted_users++;
                         }
                         catch (Exception ex) { logger.LogInformation("Ошибка в планировщике payment 0, exeption: {ex}", ex); }                      
                     }
                     await TgBotHostedService.bot.SendTextMessageAsync(1278048494, $"Всего должны продлить {count_continue} человек");
+                    await TgBotHostedService.bot.SendTextMessageAsync(1278048494, $"Всего удалено {count_deleted_users} человек ({users_payment_0.Count})");
                     await TgBotHostedService.bot.SendTextMessageAsync(1278048494, "Планировщик отработал без ошибок");
 
                 }

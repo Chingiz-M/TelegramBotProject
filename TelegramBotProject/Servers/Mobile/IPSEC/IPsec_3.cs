@@ -2,7 +2,7 @@
 using TelegramBotProject.BaseClasses;
 using TelegramBotProject.TelegramBot;
 
-namespace TelegramBotProject.Services
+namespace TelegramBotProject.Servers.Mobile.IPSEC
 {
     internal class IPsec_3 : IPSec
     {
