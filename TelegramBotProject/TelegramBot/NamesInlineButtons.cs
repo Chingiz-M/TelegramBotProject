@@ -2,12 +2,18 @@
 {
     internal class NamesInlineButtons
     {
+        static public string ContinuePayment { get; } = "continue_pay";   // переменная для обозначения продления оплаты
+        static public string Month_1 { get; } = $"1_month";
+        static public string Month_3 { get; } = $"3_month";
+
 
         #region Mobile
 
         static public string StartMobile { get; } = "Mobile_config";        // переменная для выбора конфига для мобильных устройств
 
-        static public string ContinuePayment { get; } = "continue_pay";   // переменная для обозначения продления оплаты действующему пользователю
+        static public string ContinuePayment_Mobile { get; } = $"{ContinuePayment}_{StartMobile}";   // переменная для обозначения продления оплаты действующему пользователю моб устройства
+        static public string ContinuePayment_Mobile_1_month { get; } = $"{ContinuePayment_Mobile}_{Month_1}"; // continue_pay_mobile_1_month
+        static public string ContinuePayment_Mobile_3_month { get; } = $"{ContinuePayment_Mobile}_{Month_3}"; // continue_pay_mobile_3_month
 
         static public string Mobile_TryFreePeriod { get; } = "Mobile_TryFreePeriod"; // переменная для пробного периода новому пользователю
 
@@ -18,9 +24,6 @@
         static public string IOS { get; } = $"ios";
         static public string Android { get; } = $"android";
 
-        static public string Month_1 { get; } = $"1_month";
-        static public string Month_3 { get; } = $"3_month";
-
         static public string StartIPSEC { get; } = $"Button_{IPSEC}";            // Button_IPSec
         static public string StartSocks { get; } = $"Button_{Socks}";            // Button_Socks
 
@@ -29,9 +32,6 @@
 
         static public string Socks_ios { get; } = $"{StartSocks}_{IOS}";         // Button_Socks_ios
         static public string Socks_android { get; } = $"{StartSocks}_{Android}"; // Button_Socks_android
-
-        static public string ContinuePayment_1_month { get; } = $"{ContinuePayment}_{Month_1}"; // continue_pay_1_month
-        static public string ContinuePayment_3_month { get; } = $"{ContinuePayment}_{Month_3}"; // continue_pay_3_month
 
 
         static public string IPSEC_ios_1_month { get; } = $"{IPSEC_ios}_{Month_1}";         // Button_IPSec_ios_1_month
@@ -65,6 +65,10 @@
 
         static public string StartComp { get; } = "Comp_config";  // переменная для выбора конфига для компа, ноута
 
+        static public string ContinuePayment_Comp { get; } = $"{ContinuePayment}_{StartComp}";   // переменная для обозначения продления оплаты действующему пользователю ПК
+        static public string ContinuePayment_Comp_1_month { get; } = $"{ContinuePayment_Comp}_{Month_1}"; // continue_pay_comp_1_month
+        static public string ContinuePayment_Comp_3_month { get; } = $"{ContinuePayment_Comp}_{Month_3}"; // continue_pay_comp_3_month
+
         static public string Windows { get; } = $"Windows";
         static public string MacOS { get; } = $"MacOS";
 
@@ -75,6 +79,11 @@
         static public string Comp_Payment { get; } = "Comp_Payment";                                        // переменная для платного периода
         static public string Comp_Payment_Windows { get; } = $"{Comp_Payment}_{Windows}";                   // Comp_Payment_Windows
         static public string Comp_Payment_MacOS { get; } = $"{Comp_Payment}_{MacOS}";                       // Comp_Payment_MacOS
+
+        static public string Comp_Payment_MacOS_1_month { get; } = $"{Comp_Payment_MacOS}_{Month_1}";         // Comp_Payment_MacOS_1_month
+        static public string Comp_Payment_MacOS_3_month { get; } = $"{Comp_Payment_MacOS}_{Month_3}";         // Comp_Payment_MacOS_3_month
+        static public string Comp_Payment_Windows_1_month { get; } = $"{Comp_Payment_Windows}_{Month_1}";    // Comp_Payment_Windows_1_month
+        static public string Comp_Payment_Windows_3_month { get; } = $"{Comp_Payment_Windows}_{Month_3}";    // Comp_Payment_Windows_3_month
 
         #endregion
 

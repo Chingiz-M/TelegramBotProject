@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
 using Telegram.Bot;
 using Telegram.Bot.Types.InputFiles;
+using Telegram.Bot.Types.Payments;
 using Telegram.Bot.Types.ReplyMarkups;
 using TelegramBotProject.DB;
 using TelegramBotProject.Entities;
@@ -141,7 +142,7 @@ namespace TelegramBotProject.Services
         /// <param name="button"></param>
         /// <param name="typeconnect"></param>
         /// <returns></returns>
-        public async Task Comp_BotBeginFreePeriodAsync(ITelegramBotClient botClient, Telegram.Bot.Types.CallbackQuery button, string typeconnect)
+        public async Task Comp_BeginFreePeriodAsync(ITelegramBotClient botClient, Telegram.Bot.Types.CallbackQuery button, string typeconnect)
         {
             using (TgVpnbotContext db = new TgVpnbotContext())
             {
@@ -204,6 +205,94 @@ namespace TelegramBotProject.Services
             }
         }
 
+        /// <summary>
+        /// Метод создания пользователя и занесения в бд и формирования и выдачи конфига
+        /// </summary>
+        /// <param name="botClient"> бот клиент </param>
+        /// <param name="payment"> обьект с информацией об оплате</param>
+        /// <param name="update"> объект с информацией о пользователе и поступившей команде</param>
+        /// <returns></returns>
+        public async Task Comp_NewPaymentAsync(ITelegramBotClient botClient, SuccessfulPayment? payment, Telegram.Bot.Types.Update update)
+        {
+            using (TgVpnbotContext db = new TgVpnbotContext())
+            {
+                //db.Database.EnsureCreated();
+                var chatID = update.Message.Chat.Id;
+                var CompChatID = chatID * TgBotHostedService.USERS_COMP;
+
+                var user = await db.Users.FirstOrDefaultAsync(u => u.ChatID == CompChatID);
+
+                if (user != null) // если пользователь уже есть но он не активный
+                {
+                    user.Status = "active";
+                    user.ProviderPaymentChargeId = payment?.ProviderPaymentChargeId;
+                    user.TypeOfDevice = NamesInlineButtons.StartComp;
+
+                    logger.LogInformation("Метод Comp_NewPaymentAsync, успешная оплата, активировал старого пользователя, chatid: {chatid}, paymentID: {payID}, ОС: {os}",
+                        CompChatID, payment?.ProviderPaymentChargeId, payment.InvoicePayload);
+                }
+                else // если новый пользователь код не нужен скорее всего но пока пусть будет на всякий
+                {
+                    user = new UserDB
+                    {
+                        FirstName = update.Message.Chat?.FirstName,
+                        Username = update.Message.Chat?.Username,
+                        ChatID = CompChatID,
+                        ProviderPaymentChargeId = payment?.ProviderPaymentChargeId,
+                        TypeOfDevice = NamesInlineButtons.StartComp,
+                    };
+
+                    await db.Users.AddAsync(user);
+
+                    logger.LogInformation("Метод Comp_NewPaymentAsync, успешная оплата, новый пользователь добавлен ДОЛЖЕН БЫЛ УЖЕ БЫТЬ, chatid: {chatid}, paymentID: {payID}, ОС: {os}",
+                        CompChatID, payment?.ProviderPaymentChargeId, payment.InvoicePayload);
+                }
+
+                #region Идентификация сервера и ос оплаты, создание конфигов и ключей
+
+                var match_ = Regex.Match(payment.InvoicePayload, @"(?<service>.*)_(?<os>.*)_(?<period>\d+_.*)");
+                if (match_.Success)
+                {
+                    // 1 MONTH
+                    if (match_.Groups["period"].ToString() == NamesInlineButtons.Month_1)
+                        user.DateNextPayment = DateTime.Now.AddMonths(1);
+                    // 3 MONTH
+                    else if (match_.Groups["period"].ToString() == NamesInlineButtons.Month_3)
+                        user.DateNextPayment = DateTime.Now.AddMonths(3);
+
+                    await botClient.SendTextMessageAsync(chatID, $"Оплата прошла успешно! ✅\n\n" +
+                        $"Ваш ID = " + CompChatID.ToString() + $". Подписка активна до {user.DateNextPayment.ToString("dd-MM-yyyy")} г. включительно\n\n" +
+                        $"Не удаляйте и не останавливайте бота, ближе к концу периода здесь появится новая ссылка оплаты, если вы решите остаться с нами. 🤗\n\n" +
+                        $"*ID необходим для участия в реферальной программе и отслеживания периода оплаты. 😉");
+
+
+                    IIPsec1 comp_ipsecServer = null;
+
+                    // MacOS
+                    if (match_.Groups["os"].ToString() == NamesInlineButtons.MacOS)
+                    {
+                        comp_ipsecServer = await Comp_CreateAndSendConfig_IpSec_MacOS(botClient, chatID, -1);
+                        user.NameOS = NamesInlineButtons.MacOS;
+                    }
+
+                    // Windows
+                    else if (match_.Groups["os"].ToString() == NamesInlineButtons.Windows)
+                    {
+                        comp_ipsecServer = await Comp_CreateAndSendConfig_IpSec_Windows(botClient, chatID, -1);
+                        user.NameOS = NamesInlineButtons.Windows;
+                    }
+
+                    user.NameService = comp_ipsecServer.NameCertainIPSec;
+                    user.ServiceKey = CompChatID;
+                    user.ServiceAddress = comp_ipsecServer.ServerIPSec;
+
+                }
+
+                #endregion
+
+                await db.SaveChangesAsync();
+            }
+        }
 
         /// <summary>
         ///  Метод создания и отпрвки конфига IPSEC MacOS 
@@ -234,7 +323,7 @@ namespace TelegramBotProject.Services
                 video: "BAACAgIAAxkBAAPXZJ9ombTpDVjZdPbUrIUnqI_H4KMAAjA0AAL0QfhIJJN1oofbubovBA"); // fileid video ios ipsec TestNamelessVPN
                                                                                                   //video: new InputOnlineFile(content: stream, fileName: $"Тестовая инструкция"));
 
-            await comp_ipsecServer.CreateUserConfigAsync(botClient, chatID, "getconf", "mobileconfig"); // Отправка данных на сервер и формирование конфига. Отсылка готового конфига пользователю
+            await comp_ipsecServer.CreateUserConfigAsync(botClient, chatID, "getconf", "mobileconfig", NamesInlineButtons.StartComp); // Отправка данных на сервер и формирование конфига. Отсылка готового конфига пользователю
 
             return comp_ipsecServer;
         }
@@ -274,10 +363,9 @@ namespace TelegramBotProject.Services
                                             video: "BAACAgIAAxkBAAOsZJ9CPCG7Nrfw9Ip3iJ69Z4Dxk0kAAo8tAAIh_wFJw_dGYKpZ5gkvBA"); // fileid video TestNamelessVPN
                      //video: new InputOnlineFile(content: stream, fileName: $"Тестовая инструкция"));
 
-            await comp_ipsecServer.CreateUserConfigAsync(botClient, chatID, "getconfandroid", "p12"); // Отправка данных на сервер и формирование конфига. Отсылка готового конфига пользователю
+            await comp_ipsecServer.CreateUserConfigAsync(botClient, chatID, "getconfandroid", "p12", NamesInlineButtons.StartComp); // Отправка данных на сервер и формирование конфига. Отсылка готового конфига пользователю
 
             return comp_ipsecServer;
         }
-
     }
 }

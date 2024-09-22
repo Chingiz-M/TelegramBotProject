@@ -16,13 +16,16 @@ namespace TelegramBotProject.Quartz
     internal class MessageSenderJob : IJob
     {
         private readonly ILogger<MessageSenderJob> logger;
+        private readonly Comp_IPSecServiceResolver comp_ipsecResolver;
         private readonly IPSecServiceResolver ipsecResolver;
         private readonly SOCKSServiceResolver socksResolver;
         private readonly IBotCommands botcommands;
 
-        public MessageSenderJob(ILogger<MessageSenderJob> logger, IPSecServiceResolver ipsecResolver, SOCKSServiceResolver socksResolver, IBotCommands botcommands)
+        public MessageSenderJob(ILogger<MessageSenderJob> logger, IPSecServiceResolver ipsecResolver, SOCKSServiceResolver socksResolver,
+            IBotCommands botcommands, Comp_IPSecServiceResolver comp_ipsecResolver)
         {
             this.logger = logger;
+            this.comp_ipsecResolver = comp_ipsecResolver;
             this.ipsecResolver = ipsecResolver;
             this.socksResolver = socksResolver;
             this.botcommands = botcommands;
@@ -52,15 +55,27 @@ namespace TelegramBotProject.Quartz
                     var date_2 = DateTime.Now.AddDays(2).ToString("dd-MM-yyyy");
                     var date_1 = DateTime.Now.AddDays(1).ToString("dd-MM-yyyy");
 
-                    foreach (var user in users_payment_3)
+                    foreach (var user in users_payment_3) // здесь все по датам включая chatid для компа и для телефонов
                     {
                         try
-                        {
-                            await TgBotHostedService.bot.SendTextMessageAsync(user.ChatID, $"Привет, {user?.FirstName}! 👋\n\n" +
-                            $"Напоминаем, что через 3 дня ({date_3}) заканчивается твоя подписка 🥺\n\n" +
-                            $"Если тебе понравился наш сервис и ты хочешь продлить подписку, то выбери вариант продления ниже ⬇️");
+                        {                                                       
+                            if (user.TypeOfDevice == NamesInlineButtons.StartComp) // если комп то нужно не обьебаться с chatid поделить на число
+                            {
+                                var real_chatid = user.ChatID / TgBotHostedService.USERS_COMP;
+                                await TgBotHostedService.bot.SendTextMessageAsync(real_chatid, $"Привет, {user?.FirstName}! 👋\n\n" +
+                                    $"Напоминаем, что через 3 дня ({date_3}) заканчивается твоя подписка на ПК 💻\n\n" +
+                                    $"Если тебе понравился наш сервис и ты хочешь продлить подписку, то выбери вариант продления ниже ⬇️");
 
-                            await botcommands.BotSelectSendInvoiceAsync(TgBotHostedService.bot, user.ChatID, NamesInlineButtons.ContinuePayment);
+                                await botcommands.BotSelectSendInvoiceAsync(TgBotHostedService.bot, real_chatid, NamesInlineButtons.ContinuePayment_Comp, NamesInlineButtons.StartComp);
+                            }
+                            else // если мобилка то тут нич не нужно править
+                            {
+                                await TgBotHostedService.bot.SendTextMessageAsync(user.ChatID, $"Привет, {user?.FirstName}! 👋\n\n" +
+                                    $"Напоминаем, что через 3 дня ({date_3}) заканчивается твоя подписка на Мобильное устройство 📱\n\n" +
+                                    $"Если тебе понравился наш сервис и ты хочешь продлить подписку, то выбери вариант продления ниже ⬇️");
+
+                                await botcommands.BotSelectSendInvoiceAsync(TgBotHostedService.bot, user.ChatID, NamesInlineButtons.ContinuePayment_Mobile, NamesInlineButtons.StartMobile);
+                            }
                         }
                         catch (Exception ex) { logger.LogInformation("Ошибка в планировщике payment 3, exeption: {ex}", ex); }                                              
                     }
@@ -69,11 +84,23 @@ namespace TelegramBotProject.Quartz
                     {
                         try
                         {
-                            await TgBotHostedService.bot.SendTextMessageAsync(user.ChatID, $"Привет, {user?.FirstName}! 👋\n\n" +
-                            $"Напоминаем, что через 2 дня ({date_2}) заканчивается твоя подписка 🥺\n\n" +
-                            $"Если тебе понравился наш сервис и ты хочешь продлить подписку, то выбери 👀 вариант продления ниже ⬇️");
+                            if (user.TypeOfDevice == NamesInlineButtons.StartComp) // если комп то нужно не обьебаться с chatid поделить на число
+                            {
+                                var real_chatid = user.ChatID / TgBotHostedService.USERS_COMP;
+                                await TgBotHostedService.bot.SendTextMessageAsync(real_chatid, $"Привет, {user?.FirstName}! 👋\n\n" +
+                                    $"Напоминаем, что через 2 дня ({date_2}) заканчивается твоя подписка на ПК 💻\n\n" +
+                                    $"Если тебе понравился наш сервис и ты хочешь продлить подписку, то выбери вариант продления ниже ⬇️");
 
-                            await botcommands.BotSelectSendInvoiceAsync(TgBotHostedService.bot, user.ChatID, NamesInlineButtons.ContinuePayment);
+                                await botcommands.BotSelectSendInvoiceAsync(TgBotHostedService.bot, real_chatid, NamesInlineButtons.ContinuePayment_Comp, NamesInlineButtons.StartComp);
+                            }
+                            else // если мобилка то тут нич не нужно править
+                            {
+                                await TgBotHostedService.bot.SendTextMessageAsync(user.ChatID, $"Привет, {user?.FirstName}! 👋\n\n" +
+                                    $"Напоминаем, что через 2 дня ({date_2}) заканчивается твоя подписка на Мобильное устройство 📱\n\n" +
+                                    $"Если тебе понравился наш сервис и ты хочешь продлить подписку, то выбери вариант продления ниже ⬇️");
+
+                                await botcommands.BotSelectSendInvoiceAsync(TgBotHostedService.bot, user.ChatID, NamesInlineButtons.ContinuePayment_Mobile, NamesInlineButtons.StartMobile);
+                            }
                         }
                         catch (Exception ex) { logger.LogInformation("Ошибка в планировщике payment 2, exeption: {ex}", ex); }                       
                     }
@@ -82,11 +109,23 @@ namespace TelegramBotProject.Quartz
                     {
                         try
                         {
-                            await TgBotHostedService.bot.SendTextMessageAsync(user.ChatID, $"Привет, {user?.FirstName}! 👋\n\n" +
-                            $"Уже завтра 😱 ({date_1}) заканчивается твоя подписка 😢\n\n" +
-                            $"Если тебе понравился наш сервис и ты хочешь продлить подписку, то выбери 👀 вариант продления ниже ⬇️");
+                            if (user.TypeOfDevice == NamesInlineButtons.StartComp) // если комп то нужно не обьебаться с chatid поделить на число
+                            {
+                                var real_chatid = user.ChatID / TgBotHostedService.USERS_COMP;
+                                await TgBotHostedService.bot.SendTextMessageAsync(real_chatid, $"Привет, {user?.FirstName}! 👋\n\n" +
+                                    $"Уже завтра 😱 ({date_1}) заканчивается твоя подписка на ПК 💻\n\n" +
+                                    $"Если тебе понравился наш сервис и ты хочешь продлить подписку, то выбери вариант продления ниже ⬇️");
 
-                            await botcommands.BotSelectSendInvoiceAsync(TgBotHostedService.bot, user.ChatID, NamesInlineButtons.ContinuePayment);
+                                await botcommands.BotSelectSendInvoiceAsync(TgBotHostedService.bot, real_chatid, NamesInlineButtons.ContinuePayment_Comp, NamesInlineButtons.StartComp);
+                            }
+                            else // если мобилка то тут нич не нужно править
+                            {
+                                await TgBotHostedService.bot.SendTextMessageAsync(user.ChatID, $"Привет, {user?.FirstName}! 👋\n\n" +
+                                    $"Уже завтра 😱 ({date_1}) заканчивается твоя подписка на Мобильное устройство 📱\n\n" +
+                                    $"Если тебе понравился наш сервис и ты хочешь продлить подписку, то выбери вариант продления ниже ⬇️");
+
+                                await botcommands.BotSelectSendInvoiceAsync(TgBotHostedService.bot, user.ChatID, NamesInlineButtons.ContinuePayment_Mobile, NamesInlineButtons.StartMobile);
+                            }
                         }
                         catch (Exception ex) { logger.LogInformation("Ошибка в планировщике payment 1, exeption: {ex}", ex); }                      
                     }
@@ -95,11 +134,20 @@ namespace TelegramBotProject.Quartz
                     {
                         try
                         {
-                            var match_i = Regex.Match(user.NameService.ToLower(), @"ipsec_\d+");
+                            long real_chatid = user.ChatID;
+
+                            var match_i = Regex.Match(user.NameService.ToLower(), @".*ipsec_\d+");
                             var match_s = Regex.Match(user.NameService.ToLower(), @"socks_\d+");
                             if (match_i.Success)
                             {
-                                var ipsecServer = ipsecResolver(user.NameService);
+                                IIPsec1? ipsecServer = null;
+
+                                if (user.TypeOfDevice == NamesInlineButtons.StartComp) // если комп то выбираю его резолвер
+                                    ipsecServer = comp_ipsecResolver(user.NameService); 
+
+                                else if (user.TypeOfDevice == NamesInlineButtons.StartMobile) // если мобила то выбираю его резолвер
+                                    ipsecServer = ipsecResolver(user.NameService);
+
                                 var resRevoke = await ipsecServer.RevokeUserAsync(user.ChatID);
                                 var resDelete = await ipsecServer.DeleteUserAsync(user.ChatID);
                             }
@@ -115,11 +163,16 @@ namespace TelegramBotProject.Quartz
                             db.Users.Update(user);
                             await db.SaveChangesAsync();
 
-                            await TgBotHostedService.bot.SendTextMessageAsync(user.ChatID, $"Привет, {user?.FirstName}! 👋\n\n" +
+                            if (user.TypeOfDevice == NamesInlineButtons.StartComp) // если комп то нужно не обьебаться с chatid поделить на число
+                                real_chatid = user.ChatID / TgBotHostedService.USERS_COMP;
+
+
+
+                            await TgBotHostedService.bot.SendTextMessageAsync(real_chatid, $"Привет, {user?.FirstName}! 👋\n\n" +
                                 $"Твоя подписка на наш сервис закончилась 😭\n\n" +
                                 $"Ты всегда можешь возобновить свою подписку и выбрать вариант подключения нажав /start");
 
-                            logger.LogInformation("Конфиг пользователя удален, chatid: {chatid}", user.ChatID);
+                            logger.LogInformation("Конфиг пользователя удален, chatid: {chatid}", real_chatid);
                             count_deleted_users++;
                         }
                         catch (Exception ex) { logger.LogInformation("Ошибка в планировщике payment 0, exeption: {ex}", ex); }                      

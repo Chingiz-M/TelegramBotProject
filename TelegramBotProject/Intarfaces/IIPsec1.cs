@@ -7,7 +7,7 @@ namespace TelegramBotProject.Intarfaces
         Task<string> DeleteUserAsync(long clientID);
         Task<string> RevokeUserAsync(long clientID);
         Task<int> GetTotalUserAsync();
-        Task CreateUserConfigAsync(ITelegramBotClient botClient, long chatid, string funcname, string fileextension);
+        Task CreateUserConfigAsync(ITelegramBotClient botClient, long chatid, string funcname, string fileextension, string typedevice);
         string IPSecName { get; }
         string ServerIPSec { get; set; }
         string NameCertainIPSec { get; set; }

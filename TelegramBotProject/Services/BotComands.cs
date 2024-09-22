@@ -273,6 +273,7 @@ namespace TelegramBotProject.Services
                         Username = button.Message.Chat?.Username,
                         ChatID = chatID,
                         ProviderPaymentChargeId = NamesInlineButtons.Mobile_TryFreePeriod,
+                        TypeOfDevice = NamesInlineButtons.StartMobile,
                     };
 
                     await botClient.SendTextMessageAsync(chatID, $"Бесплатный период начался! ✅\n\n" +
@@ -338,17 +339,26 @@ namespace TelegramBotProject.Services
         /// <param name="chatid"></param>
         /// <param name="typepayment"> тип оплаты (continue_pay или новый пользователь)</param>
         /// <returns></returns>
-        public async Task BotSelectSendInvoiceAsync(ITelegramBotClient botClient, long chatid, string typepayment)
+        public async Task BotSelectSendInvoiceAsync(ITelegramBotClient botClient, long chatid, string typepayment, string typedevice)
         {
+            string device_info = typedevice == NamesInlineButtons.StartComp ? "Персональный компьютер" : "Мобильное устройство";
+
             var button1 = InlineKeyboardButton.WithCallbackData($"1 месяц за {TgBotHostedService.Price_1_Month} ₽.", $"{typepayment}_{NamesInlineButtons.Month_1}");
             var button2 = InlineKeyboardButton.WithCallbackData($"3 месяц за {TgBotHostedService.Price_3_Month} ₽.", $"{typepayment}_{NamesInlineButtons.Month_3}");
             var row1 = new InlineKeyboardButton[] { button1, button2 };
             var keyboard = new Telegram.Bot.Types.ReplyMarkups.InlineKeyboardMarkup(row1);
 
-            if(typepayment == NamesInlineButtons.ContinuePayment) // продление подписки
-                await botClient.SendTextMessageAsync(chatid, $"Выберите вариант продления подписки на наш сервис 👀.\n\n", replyMarkup: keyboard);           
+            if (typepayment == NamesInlineButtons.ContinuePayment_Mobile) // продление подписки на мобильные устройства
+                await botClient.SendTextMessageAsync(chatid, $"Выберите вариант продления подписки на наш сервис для мобильного устройства 📱.\n" +
+                    $"({device_info})\n\n", replyMarkup: keyboard);   
+
+            else if (typepayment == NamesInlineButtons.ContinuePayment_Comp) // продление подписки на ПК
+                await botClient.SendTextMessageAsync(chatid, $"Выберите вариант продления подписки на наш сервис для ПК 💻.\n" +
+                    $"({device_info})\n\n", replyMarkup: keyboard);
+
             else 
-                await botClient.SendTextMessageAsync(chatid, $"Выберите вариант подписки на наш сервис 👀.\n\n" +
+                await botClient.SendTextMessageAsync(chatid, $"Выберите вариант подписки на наш сервис 👀.\n" +
+                    $"({device_info})\n\n" +
                     $"После оплаты 💳 вы получите конфигурационный файл и видеоинструкцию по его установке!\n\n" +
                     $"Процесс займет всего пару минут. 👌", replyMarkup: keyboard); // новые подключения
         }
@@ -360,20 +370,21 @@ namespace TelegramBotProject.Services
         /// <param name="chatid"> чат айди пользователя</param>
         /// <param name="typepayment"> тип оплаты либо продление либо ос которая была выбрана </param>
         /// <returns></returns>
-        public async Task BotSendInvoiceAsync(ITelegramBotClient botClient, long chatid, string typepayment, int months)
+        public async Task BotSendInvoiceAsync(ITelegramBotClient botClient, long chatid, string typepayment, int months, string typedevice)
         {
             int price = 0;
             string information_massage = null;
+            string device_info = typedevice == NamesInlineButtons.StartComp ? "ПК" : "Мобильного устройства";
 
             switch (months)
             {
                 case 1: 
                     price = TgBotHostedService.Price_1_Month;
-                    information_massage = $"Оплата подписки на 1 месяц сервиса {TgBotHostedService.BotName}";
+                    information_massage = $"Оплата подписки на 1 месяц сервиса {TgBotHostedService.BotName} для {device_info}";
                     break;
                 case 3:
                     price = TgBotHostedService.Price_3_Month;
-                    information_massage = $"Оплата подписки на 3 месяца сервиса {TgBotHostedService.BotName}";
+                    information_massage = $"Оплата подписки на 3 месяца сервиса {TgBotHostedService.BotName} для {device_info}";
                     break;
                 default:
                     break;
@@ -407,11 +418,32 @@ namespace TelegramBotProject.Services
         {
             using (TgVpnbotContext db = new TgVpnbotContext())
             {
-                var user = await db.Users.FirstOrDefaultAsync(u => u.ChatID == chatID);
+                UserDB? user = null;
+                var CompChatID = chatID * TgBotHostedService.USERS_COMP;
+                long info_chatid = 0;
 
+
+                var match_ = Regex.Match(payment.InvoicePayload, @"continue_pay_(?<typedev>.*)_(?<period>\d+_.*)");
+
+                if (match_.Success)
+                {
+                    // Mobile
+                    if (match_.Groups["typedev"].ToString() == NamesInlineButtons.StartMobile)
+                    {
+                        user = await db.Users.FirstOrDefaultAsync(u => u.ChatID == chatID);
+                        info_chatid = chatID;
+                    }
+                    // Comp
+                    else if (match_.Groups["typedev"].ToString() == NamesInlineButtons.StartComp)
+                    {
+                        user = await db.Users.FirstOrDefaultAsync(u => u.ChatID == CompChatID);
+                        info_chatid = CompChatID;
+                    }
+
+                }
+              
                 if (user != null) // мб только активный юзер (неактивный не сможет нажать и оплатить по continue_pay)
                 {
-                    var match_ = Regex.Match(payment.InvoicePayload, @".*_(?<period>\d+_.*)");
                     if (match_.Success)
                     {
                         // 1 MONTH
@@ -427,11 +459,11 @@ namespace TelegramBotProject.Services
                         await db.SaveChangesAsync();
 
                         await botClient.SendTextMessageAsync(chatID, $"Оплата прошла успешно! ✅\n\n" +
-                            $"Ваш ID = " + chatID.ToString() + $". Подписка активна до {user.DateNextPayment.ToString("dd-MM-yyyy")} г.\n\n" +
+                            $"Ваш ID = " + info_chatid.ToString() + $". Подписка активна до {user.DateNextPayment.ToString("dd-MM-yyyy")} г.\n\n" +
                             $"Не удаляйте и не останавливайте бота, ближе к концу периода здесь появится новая ссылка оплаты, если вы решите остаться с нами. 🤗\n\n" +
                             $"*ID необходим для участия в реферальной программе и отслеживания периода оплаты. 😉");
 
-                        await botClient.SendTextMessageAsync(1278048494, $"Пользователь {chatID} продлил подписку"); // присылаю себе ответ по продлению
+                        await botClient.SendTextMessageAsync(1278048494, $"Пользователь {info_chatid} продлил подписку"); // присылаю себе ответ по продлению
                     }                   
 
                     logger.LogInformation("Метод BotContinuePaymentAsync, пользователь продлил оплату, chatid: {chatid}, paymentID: {payID} ", chatID, payment?.ProviderPaymentChargeId);
@@ -466,6 +498,7 @@ namespace TelegramBotProject.Services
                 {
                     user.Status = "active";
                     user.ProviderPaymentChargeId = payment?.ProviderPaymentChargeId;
+                    user.TypeOfDevice = NamesInlineButtons.StartMobile;
 
                     logger.LogInformation("Метод BotNewPaymentAsync, успешная оплата, активировал старого пользователя, chatid: {chatid}, paymentID: {payID}, ОС: {os}",
                         chatID, payment?.ProviderPaymentChargeId, payment.InvoicePayload);
@@ -478,6 +511,7 @@ namespace TelegramBotProject.Services
                         Username = update.Message.Chat?.Username,
                         ChatID = chatID,
                         ProviderPaymentChargeId = payment?.ProviderPaymentChargeId,
+                        TypeOfDevice = NamesInlineButtons.StartMobile,
                     };
 
                     await db.Users.AddAsync(user);
@@ -647,22 +681,33 @@ namespace TelegramBotProject.Services
         /// <param name="typepayment"></param>
         /// <param name="months"></param>
         /// <returns></returns>
-        public async Task BotCheckStatusUserAndSendContinuePayInvoice(ITelegramBotClient botClient, long chatID, string typepayment, int months)
+        public async Task BotCheckStatusUserAndSendContinuePayInvoice(ITelegramBotClient botClient, long chatID, string typepayment, int months, string typedevice)
         {
             using (TgVpnbotContext db = new TgVpnbotContext())
             {
-                var user = await db.Users.FirstOrDefaultAsync(u => u.ChatID == chatID).ConfigureAwait(false);
+                var CompChatID = chatID * TgBotHostedService.USERS_COMP;
+                var info_chatid = typedevice == NamesInlineButtons.StartComp ? CompChatID : chatID;
 
-                if(user != null)
+                var user = await db.Users.FirstOrDefaultAsync(u => u.ChatID == info_chatid).ConfigureAwait(false);
+
+                if (user != null)
                 {
                     if (user.Status == "active") // отправляю инвойс на продление подписик уже активным пользователям
-                        await BotSendInvoiceAsync(botClient, chatID, typepayment, months);
+                    {
+                        if (typedevice == NamesInlineButtons.StartComp)
+                            await BotSendInvoiceAsync(botClient, chatID, typepayment, months, NamesInlineButtons.StartComp);
+
+                        else if (typedevice == NamesInlineButtons.StartMobile)
+                            await BotSendInvoiceAsync(botClient, chatID, typepayment, months, NamesInlineButtons.StartMobile);
+
+                    }
 
                     else if (user.Status == "nonactive") // когда пользователь есть в БД и он не активный и он нажал на continue_pay кнопку а не новую 
                         await botClient.SendTextMessageAsync(chatID,
                             $"Твоя подписка на наш сервис закончилась 😭\n\n" +
                             $"Ты всегда можешь возобновить свою подписку и выбрать вариант подключения нажав /start");
                 }
+            
             }
         }
 
@@ -794,11 +839,11 @@ namespace TelegramBotProject.Services
             //await using Stream stream = System.IO.File.OpenRead(@"C:\Users\chin1\source\repos\TgBotNamelessNetwork\VideoInstructions\instruction_IOS_IPSEC_NEW.mp4");
             var mes = await botClient.SendVideoAsync(
             chatId: chatID,
-            video: "BAACAgIAAxkDAAIUUWYHJaIibWl1V3tdreo9O829c6EvAAKAQAACT21BSKKYYspolrvkNAQ"); // fileid video ios ipsec NamelessNetwork
-        //video: "BAACAgIAAxkBAAPXZJ9ombTpDVjZdPbUrIUnqI_H4KMAAjA0AAL0QfhIJJN1oofbubovBA"); // fileid video ios ipsec TestNamelessVPN
+            //video: "BAACAgIAAxkDAAIUUWYHJaIibWl1V3tdreo9O829c6EvAAKAQAACT21BSKKYYspolrvkNAQ"); // fileid video ios ipsec NamelessNetwork
+        video: "BAACAgIAAxkBAAPXZJ9ombTpDVjZdPbUrIUnqI_H4KMAAjA0AAL0QfhIJJN1oofbubovBA"); // fileid video ios ipsec TestNamelessVPN
                                                                                           //video: new InputOnlineFile(content: stream, fileName: $"Тестовая инструкция"));
 
-            await ipsecServer.CreateUserConfigAsync(botClient, chatID, "getconf", "mobileconfig"); // Отправка данных на сервер и формирование конфига. Отсылка готового конфига пользователю
+            await ipsecServer.CreateUserConfigAsync(botClient, chatID, "getconf", "mobileconfig", NamesInlineButtons.StartMobile); // Отправка данных на сервер и формирование конфига. Отсылка готового конфига пользователю
 
             return ipsecServer;
         }
@@ -837,7 +882,7 @@ namespace TelegramBotProject.Services
                                                                                                //video: "BAACAgIAAxkBAAOsZJ9CPCG7Nrfw9Ip3iJ69Z4Dxk0kAAo8tAAIh_wFJw_dGYKpZ5gkvBA"); // fileid video TestNamelessVPN
                                                                                                //video: new InputOnlineFile(content: stream, fileName: $"Тестовая инструкция"));
 
-            await ipsecServer.CreateUserConfigAsync(botClient, chatID, "getconfandroid", "p12"); // Отправка данных на сервер и формирование конфига. Отсылка готового конфига пользователю
+            await ipsecServer.CreateUserConfigAsync(botClient, chatID, "getconfandroid", "p12", NamesInlineButtons.StartMobile); // Отправка данных на сервер и формирование конфига. Отсылка готового конфига пользователю
 
             return ipsecServer;
         }
@@ -870,9 +915,9 @@ namespace TelegramBotProject.Services
                 //await using Stream stream = System.IO.File.OpenRead(@"C:\Users\chin1\source\repos\TelegramBotProject\instruction_IOS_Socks.mp4");
                 var mes = await botClient.SendVideoAsync(
                 chatId: chatID,
-                video: "BAACAgIAAxkDAANyZWiG0AABrL2md4eb79UH7ZcR9hAwAAIVOgACJQVBS_cx0M0jD2nHMwQ"); // fileid video NamelessNetwork
-                                                                                                   //video: "BAACAgIAAxkDAAIEuWVk4XVhHJietr3md_CsBlqB7qkfAAKSRgACFFsoS-6Q2XM11qLpMwQ"); // fileid video TestNamelessVPN
-                                                                                                   //video: new InputOnlineFile(content: stream, fileName: $"Тестовая инструкция"));
+                //video: "BAACAgIAAxkDAANyZWiG0AABrL2md4eb79UH7ZcR9hAwAAIVOgACJQVBS_cx0M0jD2nHMwQ"); // fileid video NamelessNetwork
+                                                            video: "BAACAgIAAxkDAAIEuWVk4XVhHJietr3md_CsBlqB7qkfAAKSRgACFFsoS-6Q2XM11qLpMwQ"); // fileid video TestNamelessVPN
+                                          //video: new InputOnlineFile(content: stream, fileName: $"Тестовая инструкция"));
             }
             else // android
             {
@@ -934,7 +979,7 @@ namespace TelegramBotProject.Services
             {
                 try
                 {
-                    //await botClient.SendTextMessageAsync(uID, text);
+                    await botClient.SendTextMessageAsync(uID, text);
                     count++;
                 }
                 catch (Exception ex) {

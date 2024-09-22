@@ -10,9 +10,8 @@ namespace TelegramBotProject.Intarfaces
         Task Comp_BotStartAsync(ITelegramBotClient botClient, long chatid);
 
         Task Comp_SelectOpSysAsync(ITelegramBotClient botClient, long chatid, string ServiceName);
-        Task Comp_BotBeginFreePeriodAsync(ITelegramBotClient botClient, Telegram.Bot.Types.CallbackQuery button, string typeconnect);
-
-
+        Task Comp_BeginFreePeriodAsync(ITelegramBotClient botClient, Telegram.Bot.Types.CallbackQuery button, string typeconnect);
+        Task Comp_NewPaymentAsync(ITelegramBotClient botClient, SuccessfulPayment? payment, Telegram.Bot.Types.Update update);
         Task<IIPsec1> Comp_CreateAndSendConfig_IpSec_MacOS(ITelegramBotClient botClient, long chatID, int numserver);
         Task<IIPsec1> Comp_CreateAndSendConfig_IpSec_Windows(ITelegramBotClient botClient, long chatID, int numserver);
 

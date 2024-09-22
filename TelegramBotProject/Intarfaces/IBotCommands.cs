@@ -11,12 +11,12 @@ namespace TelegramBotProject.Intarfaces
         Task BotStartAsync(ITelegramBotClient botClient, long chatid);
         Task BotSelectServiceAsync(ITelegramBotClient botClient, long chatid, TgBotHostedService.TypeConnect connect);
         Task BotSelectOpSysAsync(ITelegramBotClient botClient, long chatid, string? FirstName, string ServiceName);
-        Task BotSelectSendInvoiceAsync(ITelegramBotClient botClient, long chatid, string typepayment);
-        Task BotSendInvoiceAsync(ITelegramBotClient botClient, long chatid, string typepayment, int months);
+        Task BotSelectSendInvoiceAsync(ITelegramBotClient botClient, long chatid, string typepayment, string typedevice);
+        Task BotSendInvoiceAsync(ITelegramBotClient botClient, long chatid, string typepayment, int months, string typedevice);
         Task BotNewPaymentAsync(ITelegramBotClient botClient, SuccessfulPayment? payment, Telegram.Bot.Types.Update update);
         Task BotContinuePaymentAsync(ITelegramBotClient botClient, long chatID, SuccessfulPayment? payment);
         Task BotAddReferalProgramAsync(ITelegramBotClient botClient, long chatid, long clientID);                                     
-        Task BotCheckStatusUserAndSendContinuePayInvoice(ITelegramBotClient botClient, long chatID, string typepayment, int months);
+        Task BotCheckStatusUserAndSendContinuePayInvoice(ITelegramBotClient botClient, long chatID, string typepayment, int months, string typedevice);
         Task<UserDB> BotCheckUserBDAsync(long chatID, int searchType);
         Task<IIPsec1> CreateAndSendConfig_IpSec_IOS(ITelegramBotClient botClient, long chatID, int numserver);
         Task<IIPsec1> CreateAndSendConfig_IpSec_Android(ITelegramBotClient botClient, long chatID, int numserver);

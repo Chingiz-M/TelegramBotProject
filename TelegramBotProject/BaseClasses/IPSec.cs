@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types.InputFiles;
 using TelegramBotProject.Intarfaces;
+using TelegramBotProject.TelegramBot;
 
 namespace TelegramBotProject.BaseClasses
 {
@@ -106,21 +107,25 @@ namespace TelegramBotProject.BaseClasses
         /// <param name="fileextension"> расширение конфига для айоса или андроида</param>
         /// <returns></returns>
         // https://176.124.200.227:8433/getconf=55555555&pass=mhR2IFLmm2F3
-        public async Task CreateUserConfigAsync(ITelegramBotClient botClient, long chatid, string funcname, string fileextension)
+        public async Task CreateUserConfigAsync(ITelegramBotClient botClient, long chatid, string funcname, string fileextension, string typedevice)
         {
+            var CompChatID = chatid * TgBotHostedService.USERS_COMP;
+            var info_chatid = typedevice == NamesInlineButtons.StartComp ? CompChatID : chatid;
+            var info_name = typedevice == NamesInlineButtons.StartComp ? $"PC_VpnClient{info_chatid}.{fileextension}" : $"Mobile_VpnClient{info_chatid}.{fileextension}";
+
             using (var httpClientHandler = new HttpClientHandler())
             {
                 httpClientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => { return true; };
                 using (var client = new HttpClient(httpClientHandler))
                 {
-                    string str = $"{ServerIPSec}/{funcname}={chatid}&pass={PasswordIPSec}";
+                    string str = $"{ServerIPSec}/{funcname}={info_chatid}&pass={PasswordIPSec}";
                     using var s = await client.GetStreamAsync(str);
                     await botClient.SendDocumentAsync(
                         chatId: chatid,
-                        document: new InputOnlineFile(content: s, fileName: $"vpnClient{chatid}.{fileextension}"));
-                    logger.LogInformation("Создан конфиг пользователя IPSeq chatid: {chatid}", chatid);
+                        document: new InputOnlineFile(content: s, fileName: info_name));
+                    logger.LogInformation("Создан конфиг пользователя IPSec chatid: {chatid}", info_chatid);
 
-                    await botClient.SendTextMessageAsync(1278048494, $"Добавлен пользователь {fileextension} IPSec: {chatid}"); // присылаю себе ответ по добавлению
+                    await botClient.SendTextMessageAsync(1278048494, $"Добавлен пользователь {fileextension} IPSec: {info_chatid} type: {typedevice}"); // присылаю себе ответ по добавлению
 
                 }
             }

@@ -123,6 +123,7 @@ namespace TelegramBotProject.TelegramBot
                     if (message.Chat.Id < 0) // защита от отрицательного ID (группы, супергруппы имеют отриц ID)
                         return;
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                     /// <summary>
                     /// Если произошла успешная оплата
                     /// </summary>
@@ -131,18 +132,26 @@ namespace TelegramBotProject.TelegramBot
                         var payment = message.SuccessfulPayment;
 
                         var match_ = Regex.Match(payment.InvoicePayload, $@"{NamesInlineButtons.ContinuePayment}.*");
-                        if (match_.Success)
+                        if (match_.Success) // продление компов и телефонов
                         {
                             await botComands.BotContinuePaymentAsync(botClient, update.Message.Chat.Id, payment); // Продление подписки уже активным пользователям
                         }
                         else
                         {
-                            await botComands.BotNewPaymentAsync(botClient, payment, update); //Создание пользователя и занесение в БД если ты новый пользователь или неактивный
+                            var match_comp = Regex.Match(payment.InvoicePayload, $@"{NamesInlineButtons.Comp_Payment}.*");
+                            if (match_comp.Success) // платные компы
+                            {
+                                await comp_Comands.Comp_NewPaymentAsync(botClient, payment, update); //Создание пользователя и занесение в БД если ты новый пользователь или неактивный
+                            }
+                            else // платные телефоны
+                            {
+                                await botComands.BotNewPaymentAsync(botClient, payment, update); //Создание пользователя и занесение в БД если ты новый пользователь или неактивный
+                            }
                         }
 
                         return;
                     }
-///////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                     #region BotCommands
 
                     /// <summary>
@@ -812,17 +821,31 @@ namespace TelegramBotProject.TelegramBot
 
                     Log.Information("Нажата кнопка {inlineButton} пользователь: {firstName}, chatid: {chatid}", button.Data, button.Message.Chat?.FirstName, real_chatId);
 
-                    // SELECT PERIOD CONTINUE_PAYMENT 1 month
-                    if (button.Data == NamesInlineButtons.ContinuePayment_1_month)
+                    // SELECT PERIOD CONTINUE_PAYMENT Mobile 1 month
+                    if (button.Data == NamesInlineButtons.ContinuePayment_Mobile_1_month)
                     {
-                        await botComands.BotCheckStatusUserAndSendContinuePayInvoice(botClient, button.Message.Chat.Id, NamesInlineButtons.ContinuePayment_1_month, 1);
+                        await botComands.BotCheckStatusUserAndSendContinuePayInvoice(botClient, button.Message.Chat.Id, NamesInlineButtons.ContinuePayment_Mobile_1_month, 1, NamesInlineButtons.StartMobile);
                         return;
                     }
 
-                    // SELECT PERIOD CONTINUE_PAYMENT 3 month
-                    if (button.Data == NamesInlineButtons.ContinuePayment_3_month)
+                    // SELECT PERIOD CONTINUE_PAYMENT Mobile 3 month
+                    if (button.Data == NamesInlineButtons.ContinuePayment_Mobile_3_month)
                     {
-                        await botComands.BotCheckStatusUserAndSendContinuePayInvoice(botClient, button.Message.Chat.Id, NamesInlineButtons.ContinuePayment_3_month, 3);
+                        await botComands.BotCheckStatusUserAndSendContinuePayInvoice(botClient, button.Message.Chat.Id, NamesInlineButtons.ContinuePayment_Mobile_3_month, 3, NamesInlineButtons.StartMobile);
+                        return;
+                    }
+
+                    // SELECT PERIOD CONTINUE_PAYMENT Comp 1 month
+                    if (button.Data == NamesInlineButtons.ContinuePayment_Comp_1_month)
+                    {
+                        await botComands.BotCheckStatusUserAndSendContinuePayInvoice(botClient, button.Message.Chat.Id, NamesInlineButtons.ContinuePayment_Comp_1_month, 1, NamesInlineButtons.StartComp);
+                        return;
+                    }
+
+                    // SELECT PERIOD CONTINUE_PAYMENT Comp 3 month
+                    if (button.Data == NamesInlineButtons.ContinuePayment_Comp_3_month)
+                    {
+                        await botComands.BotCheckStatusUserAndSendContinuePayInvoice(botClient, button.Message.Chat.Id, NamesInlineButtons.ContinuePayment_Comp_3_month, 3, NamesInlineButtons.StartComp);
                         return;
                     }
 
@@ -831,7 +854,7 @@ namespace TelegramBotProject.TelegramBot
                     if (usr != null) // АКТИВНЫЙ ЮЗЕР НЕ МОЖЕТ НАЖАТЬ НИКУДА
                     {
                         await botClient.SendTextMessageAsync(real_chatId,
-                            $"Ты уже являешься активным пользователем 🏆 \n\n" +
+                            $"Ты уже являешься активным пользователем нашего сервиса для мобильного устройства 🏆 \n\n" +
                             $"Твоя подписка действует до {usr.DateNextPayment.ToString("dd-MM-yyyy")} 🤝 \n" +
                             $"Ты получишь уведомления от бота за 3,2,1 день до окончания подписки, а также возможность продлить её \n\n" +
                             $"Если возникли какие-либо вопросы, то ты всегда можешь написать в поддержку /support 🥸");
@@ -857,7 +880,7 @@ namespace TelegramBotProject.TelegramBot
                                 return;
                             }
 
-                            /////////////// IPSEC ///////////////////////
+                            /////////////// FREE IPSEC ///////////////////////
 
                             // FREE BUTTON Mobile IPSEC
                             if (button.Data == NamesInlineButtons.Mobile_TryFreePeriod_IpSec)
@@ -880,7 +903,7 @@ namespace TelegramBotProject.TelegramBot
                                 return;
                             }
 
-                            ///////////// SOCKS ////////////////////////
+                            ///////////// FREE SOCKS ////////////////////////
 
                             // FREE BUTTON MOBILE SOCKS
                             if (button.Data == NamesInlineButtons.Mobile_TryFreePeriod_Socks)
@@ -906,105 +929,118 @@ namespace TelegramBotProject.TelegramBot
                         }
                         // else { пользователь есть в бд и он неактивный }
 
-///////////////////////////////////////////////////////////////
-                        #region START Payment Services
+                        #region PAYMENT Services
 
-                        // START BUTTONS
+                        /////////////// FREE IPSEC ///////////////////////
+
+                        // PAYMENT BUTTON Mobile IPSEC
                         if (button.Data == NamesInlineButtons.StartIPSEC)
                         {
                             await botComands.BotSelectOpSysAsync(botClient, real_chatId, button.Message.Chat?.FirstName, NamesInlineButtons.StartIPSEC);
                             return;
                         }
 
+                        // PAYMENT BUTTON Mobile IPSEC IOS
+                        if (button.Data == NamesInlineButtons.IPSEC_ios)
+                        {
+                            await botComands.BotSelectSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.IPSEC_ios, NamesInlineButtons.StartMobile);
+                            return;
+                        }
+
+                        // PAYMENT BUTTON Mobile IPSEC ANDROID
+                        if (button.Data == NamesInlineButtons.IPSEC_android)
+                        {
+                            await botComands.BotSelectSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.IPSEC_android, NamesInlineButtons.StartMobile);
+                            return;
+                        }
+
+                        ///////////// FREE SOCKS ////////////////////////
+
+                        // PAYMENT BUTTON Mobile SOCKS
                         if (button.Data == NamesInlineButtons.StartSocks)
                         {
                             await botComands.BotSelectOpSysAsync(botClient, real_chatId, button.Message.Chat?.FirstName, NamesInlineButtons.StartSocks);
                             return;
                         }
 
-                        #endregion
-                        ///////////////////////////////////////////////////////////////
-                        #region Payment Servers and Services          
-
-                        // IPSec1 BUTTONS
-                        if (button.Data == NamesInlineButtons.IPSEC_ios)
-                        {
-                            await botComands.BotSelectSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.IPSEC_ios);
-                            return;
-                        }
-
-
-                        if (button.Data == NamesInlineButtons.IPSEC_android)
-                        {
-                            await botComands.BotSelectSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.IPSEC_android);
-                            return;
-                        }
-
-                        // Socks1 BUTTONS
+                        // PAYMENT BUTTON Mobile SOCKS IOS
                         if (button.Data == NamesInlineButtons.Socks_ios)
                         {
-                            await botComands.BotSelectSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.Socks_ios);
+                            await botComands.BotSelectSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.Socks_ios, NamesInlineButtons.StartMobile);
                             return;
                         }
 
+                        // PAYMENT BUTTON Mobile SOCKS ANDROID
                         if (button.Data == NamesInlineButtons.Socks_android)
                         {
-                            await botComands.BotSelectSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.Socks_android);
+                            await botComands.BotSelectSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.Socks_android, NamesInlineButtons.StartMobile);
                             return;
                         }
 
                         #endregion
-                        ///////////////////////////////////////////////////////////////
+
+
                         #region Poriod Payment every servers and every services
 
-                        // Если в Servers and Services регионе 4 строчки то тут должно быть 4* на количестов пакетов подписки (1мес и 3 мес это 2 пакета) итого 4*2=8
-                        // SELECT PERIOD 1 MONTH PAYMENT IPSEC, Socks
+                        // Если в PAYMENT Services регионе 4 строчки то тут должно быть 4* на количестов пакетов подписки (1мес и 3 мес это 2 пакета) итого 4*2=8
+                        
+                        //////////////////// 1 MONTH ///////////////////////////////////////////////////////////////////////////////////////////
+
+                        // SELECT PERIOD           1 MONTH IPSEC IOS  
                         if (button.Data == NamesInlineButtons.IPSEC_ios_1_month)
                         {
-                            await botComands.BotSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.IPSEC_ios_1_month, 1);
+                            await botComands.BotSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.IPSEC_ios_1_month, 1, NamesInlineButtons.StartMobile);
                             return;
                         }
 
-                        if (button.Data == NamesInlineButtons.IPSEC_android_1_month)
+                        // SELECT PERIOD           1 MONTH IPSEC ANDROID 
+                        if (button.Data == NamesInlineButtons.IPSEC_android_1_month) 
                         {
-                            await botComands.BotSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.IPSEC_android_1_month, 1);
+                            await botComands.BotSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.IPSEC_android_1_month, 1, NamesInlineButtons.StartMobile);
                             return;
                         }
 
+                        // SELECT PERIOD           1 MONTH SOCKS IOS 
                         if (button.Data == NamesInlineButtons.Socks_ios_1_month)
                         {
-                            await botComands.BotSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.Socks_ios_1_month, 1);
+                            await botComands.BotSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.Socks_ios_1_month, 1, NamesInlineButtons.StartMobile);
                             return;
                         }
 
+                        // SELECT PERIOD           1 MONTH SOCKS ANDROID 
                         if (button.Data == NamesInlineButtons.Socks_android_1_month)
                         {
-                            await botComands.BotSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.Socks_android_1_month, 1);
+                            await botComands.BotSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.Socks_android_1_month, 1, NamesInlineButtons.StartMobile);
                             return;
                         }
 
-                        // SELECT PERIOD 3 MONTH PAYMENT IPSEC, Socks
+                        //////////////////// 3 MONTH //////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                        // SELECT PERIOD           3 MONTH IPSEC IOS
                         if (button.Data == NamesInlineButtons.IPSEC_ios_3_month)
                         {
-                            await botComands.BotSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.IPSEC_ios_3_month, 3);
+                            await botComands.BotSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.IPSEC_ios_3_month, 3, NamesInlineButtons.StartMobile);
                             return;
                         }
 
+                        // SELECT PERIOD           3 MONTH IPSEC ANDROID
                         if (button.Data == NamesInlineButtons.IPSEC_android_3_month)
                         {
-                            await botComands.BotSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.IPSEC_android_3_month, 3);
+                            await botComands.BotSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.IPSEC_android_3_month, 3, NamesInlineButtons.StartMobile);
                             return;
                         }
 
+                        // SELECT PERIOD           3 MONTH SOCKS IOS
                         if (button.Data == NamesInlineButtons.Socks_ios_3_month)
                         {
-                            await botComands.BotSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.Socks_ios_3_month, 3);
+                            await botComands.BotSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.Socks_ios_3_month, 3, NamesInlineButtons.StartMobile);
                             return;
                         }
 
+                        // SELECT PERIOD           3 MONTH SOCKS ANDROID
                         if (button.Data == NamesInlineButtons.Socks_android_3_month)
                         {
-                            await botComands.BotSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.Socks_android_3_month, 3);
+                            await botComands.BotSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.Socks_android_3_month, 3, NamesInlineButtons.StartMobile);
                             return;
                         }
 
@@ -1017,7 +1053,7 @@ namespace TelegramBotProject.TelegramBot
                     if (comp_usr != null) // АКТИВНЫЙ ЮЗЕР НЕ МОЖЕТ НАЖАТЬ НИКУДА
                     {
                         await botClient.SendTextMessageAsync(real_chatId,
-                            $"Ты уже являешься активным пользователем 🏆 \n\n" +
+                            $"Ты уже являешься активным пользователем нашего сервиса для ПК 🏆 \n\n" +
                             $"Твоя подписка действует до {comp_usr.DateNextPayment.ToString("dd-MM-yyyy")} 🤝 \n" +
                             $"Ты получишь уведомления от бота за 3,2,1 день до окончания подписки, а также возможность продлить её \n\n" +
                             $"Если возникли какие-либо вопросы, то ты всегда можешь написать в поддержку /support 🥸");
@@ -1046,21 +1082,62 @@ namespace TelegramBotProject.TelegramBot
                             // FREE BUTTON Mobile IPSEC MACOS
                             if (button.Data == NamesInlineButtons.Comp_TryFreePeriod_MacOS)
                             {
-                                await comp_Comands.Comp_BotBeginFreePeriodAsync(botClient, button, NamesInlineButtons.Comp_TryFreePeriod_MacOS);
+                                await comp_Comands.Comp_BeginFreePeriodAsync(botClient, button, NamesInlineButtons.Comp_TryFreePeriod_MacOS);
                                 return;
                             }
 
                             // FREE BUTTON Mobile IPSEC WINDOWS
                             if (button.Data == NamesInlineButtons.Comp_TryFreePeriod_Windows)
                             {
-                                await comp_Comands.Comp_BotBeginFreePeriodAsync(botClient, button, NamesInlineButtons.Comp_TryFreePeriod_Windows);
+                                await comp_Comands.Comp_BeginFreePeriodAsync(botClient, button, NamesInlineButtons.Comp_TryFreePeriod_Windows);
                                 return;
                             }
                         }
                         // else { пользователь есть в бд и он неактивный }
 
-                        ///////////////////////////////////////////////////////////////
+                        /////////////////////// PAYMENT Comp ////////////////////////////////////////
 
+                        // PAYMENT BUTTON COMP IPSEC MacOS
+                        if (button.Data == NamesInlineButtons.Comp_Payment_MacOS)
+                        {
+                            await botComands.BotSelectSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.Comp_Payment_MacOS, NamesInlineButtons.StartComp);
+                            return;
+                        }
+
+                        // PAYMENT BUTTON COMP IPSEC Windows
+                        if (button.Data == NamesInlineButtons.Comp_Payment_Windows)
+                        {
+                            await botComands.BotSelectSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.Comp_Payment_Windows, NamesInlineButtons.StartComp);
+                            return;
+                        }
+
+                        // SELECT PERIOD           1 MONTH IPSEC MacOS  
+                        if (button.Data == NamesInlineButtons.Comp_Payment_MacOS_1_month)
+                        {
+                            await botComands.BotSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.Comp_Payment_MacOS_1_month, 1, NamesInlineButtons.StartComp);
+                            return;
+                        }
+
+                        // SELECT PERIOD           3 MONTH IPSEC MacOS  
+                        if (button.Data == NamesInlineButtons.Comp_Payment_MacOS_3_month)
+                        {
+                            await botComands.BotSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.Comp_Payment_MacOS_3_month, 3, NamesInlineButtons.StartComp);
+                            return;
+                        }
+
+                        // SELECT PERIOD           1 MONTH IPSEC Windows  
+                        if (button.Data == NamesInlineButtons.Comp_Payment_Windows_1_month)
+                        {
+                            await botComands.BotSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.Comp_Payment_Windows_1_month, 1, NamesInlineButtons.StartComp);
+                            return;
+                        }
+
+                        // SELECT PERIOD           3 MONTH IPSEC Windows  
+                        if (button.Data == NamesInlineButtons.Comp_Payment_Windows_3_month)
+                        {
+                            await botComands.BotSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.Comp_Payment_Windows_3_month, 3, NamesInlineButtons.StartComp);
+                            return;
+                        }
                     }
 
                     await botClient.SendTextMessageAsync(real_chatId, "Эта кнопка устарела! 😢\n" +
