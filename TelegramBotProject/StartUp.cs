@@ -139,8 +139,8 @@ namespace TelegramBotProject
                                                                //.WithSimpleSchedule(x => x            // настраиваем выполнение действия
                                                                //    .WithIntervalInSeconds(200)          // через 200 sec
                                                                //    .RepeatForever()));
-                                                               .WithCronSchedule("0 */2 * ? * *")); // run every 2 min
-                                                                                                    //.WithCronSchedule("0 0 12 ? * * *")); // run every day at 12 o'clock at London
+                                                               //.WithCronSchedule("0 */2 * ? * *")); // run every 2 min
+                                                                    .WithCronSchedule("0 0 12 ? * * *")); // run every day at 12 o'clock at London
                   });
 
                   services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);

@@ -8,7 +8,7 @@ namespace TelegramBotProject.Servers.Comp
     {
         public Comp_IPsec_1(ILogger<Comp_IPsec_1> logger) : base(logger)
         {
-            ServerIPSec = "https://45.142.214.120:8433";
+            ServerIPSec = "https://194.31.109.190:8433";
             NameCertainIPSec = TgBotHostedService.Comp_IPSEC_SERVERS_LIST[0]; // Comp_IPSEC_1
         }
     }

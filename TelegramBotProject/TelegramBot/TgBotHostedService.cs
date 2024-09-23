@@ -42,7 +42,7 @@ namespace TelegramBotProject.TelegramBot
         static public string BotName { get; } = StartUp.GetTokenfromConfig("BotName");
         static public int Price_1_Month { get; } = 99;
         static public int Price_3_Month { get; } = 249;
-        static public int Comp_CountINServerIpSec { get; set; } = 15; // максимум количесвто человек на сервере
+        static public int Comp_CountINServerIpSec { get; set; } = 20; // максимум количесвто человек на сервере
         static public int CountINServerIpSec { get; set; } = 70; // максимум количесвто человек на сервере
         static public int CountINServerSocks { get; set; } = 35; // максимум количесвто человек на сервере
         static public string PromocodeName { get; set; } = "testPromo";// промокод для участия в акциях
@@ -105,6 +105,7 @@ namespace TelegramBotProject.TelegramBot
                 var Socks1Service = SocksResolver(SOCKS_SERVERS_LIST[0]); // получаю базовый класс
 
                 var IPSecResolver = Program.HostApp.Services.GetRequiredService<IPSecServiceResolver>();
+                var CompIPSecResolver = Program.HostApp.Services.GetRequiredService<Comp_IPSecServiceResolver>();
                 //var IPSec1Service = IPSecResolver(IPSEC_SERVERS_LIST[1]); // получаю базовый класс
 
                 var botComands = Program.HostApp.Services.GetRequiredService<IBotCommands>();
@@ -555,13 +556,22 @@ namespace TelegramBotProject.TelegramBot
                                 await botClient.SendTextMessageAsync(message.Chat.Id, $"Количестов активных пользователей: {total_users} на сервере {item}");
                             }
                         }
+
+                        foreach (var item in Comp_IPSEC_SERVERS_LIST)
+                        {
+
+                            var SelectedIPsec = CompIPSecResolver(item);
+                            var total_users = await SelectedIPsec.GetTotalUserAsync();
+                            await botClient.SendTextMessageAsync(message.Chat.Id, $"Количестов активных пользователей: {total_users} на сервере {item}");
+
+                        }
                         return;
                     }
 
                     /// <summary>
-                    /// Если сообщение от пользователя /delete_client_ipsec. Удаляю клиента по ID из vpn ipsec на указанном сервере и делаю неактивным в бд
+                    /// Если сообщение от пользователя /delete_user_ipsec. Удаляю клиента по ID из vpn ipsec на указанном сервере и делаю неактивным в бд
                     /// </summary>
-                    var match_del_ipsec = Regex.Match(message.Text.ToLower(), @"/delete_client_ipsec (\d+) server (\d+)");
+                    var match_del_ipsec = Regex.Match(message.Text.ToLower(), @"/delete_user_ipsec (\d+) server (\d+)");
                     if (match_del_ipsec.Success)
                     {
                         long.TryParse(match_del_ipsec.Groups[1].Value, out long clientID);
@@ -570,11 +580,10 @@ namespace TelegramBotProject.TelegramBot
                         using (TgVpnbotContext db = new TgVpnbotContext())
                         {
                             var user = await db.Users.FirstOrDefaultAsync(u => u.ChatID == clientID).ConfigureAwait(false);
-                           
                             var SelectedIPsec = IPSecResolver(IPSEC_SERVERS_LIST[server_id - 1]);
 
                             var total_users_before = await SelectedIPsec.GetTotalUserAsync();
-                            await botClient.SendTextMessageAsync(message.Chat.Id, $"Количестов активных пользователей ДО удаления: {total_users_before} на сервере {server_id}");
+                            await botClient.SendTextMessageAsync(message.Chat.Id, $"Сервер МОБИЛ количество активных пользователей ДО удаления: {total_users_before} на сервере {server_id}");
 
                             var resRevoke = await SelectedIPsec.RevokeUserAsync(clientID);
                             var resDelete = await SelectedIPsec.DeleteUserAsync(clientID);
@@ -592,16 +601,57 @@ namespace TelegramBotProject.TelegramBot
                                 await botClient.SendTextMessageAsync(message.Chat.Id, $"Info about IPsec {clientID}: {resDelete}"); // присылаю ответ по удалению
 
                             var total_users = await SelectedIPsec.GetTotalUserAsync();
-                            await botClient.SendTextMessageAsync(message.Chat.Id, $"Количестов активных пользователей ПОСЛЕ удаления: {total_users} на сервере {server_id}");
+                            await botClient.SendTextMessageAsync(message.Chat.Id, $"Сервер МОБИЛ количество активных пользователей ПОСЛЕ удаления: {total_users} на сервере {server_id}");
                         }
 
                         return;
                     }
 
                     /// <summary>
-                    /// Если сообщение от пользователя /create_client_ipsec. Создаю клиента по ID из vpn ipsec и добавляю в бд
+                    /// Если сообщение от пользователя /delete_user_ipsec. Удаляю клиента по ID из vpn ipsec на указанном сервере и делаю неактивным в бд
                     /// </summary>
-                    var match_create_ipsec = Regex.Match(message.Text.ToLower(), @"/create_client_ipsec (\d+) server (\d+) os (\d+)");
+                    var match_del_ipsec_comp = Regex.Match(message.Text.ToLower(), @"/delete_user_ipsec_comp (\d+) server (\d+)");
+                    if (match_del_ipsec_comp.Success)
+                    {
+                        long.TryParse(match_del_ipsec_comp.Groups[1].Value, out long clientID);
+                        long.TryParse(match_del_ipsec_comp.Groups[2].Value, out long server_id);
+
+                        using (TgVpnbotContext db = new TgVpnbotContext())
+                        {
+                            var comp_chatID = clientID * USERS_COMP;
+
+                            var user = await db.Users.FirstOrDefaultAsync(u => u.ChatID == comp_chatID).ConfigureAwait(false);
+                            var SelectedIPsec = CompIPSecResolver(Comp_IPSEC_SERVERS_LIST[server_id - 1]);
+
+                            var total_users_before = await SelectedIPsec.GetTotalUserAsync();
+                            await botClient.SendTextMessageAsync(message.Chat.Id, $"Сервер КОМПОВ количество активных пользователей ДО удаления: {total_users_before} на сервере {server_id}");
+
+                            var resRevoke = await SelectedIPsec.RevokeUserAsync(comp_chatID);
+                            var resDelete = await SelectedIPsec.DeleteUserAsync(comp_chatID);
+
+                            if (user != null)
+                            {
+                                user.Status = "nonactive";
+                                user.DateDisconnect = DateTime.Now;
+
+                                db.Users.Update(user);
+                                await db.SaveChangesAsync();
+                            }
+                            await botClient.SendTextMessageAsync(1278048494, $"Info about IPsec {comp_chatID}: {resDelete}"); // присылаю себе ответ по удалению
+                            if (message.Chat.Id != 1278048494)
+                                await botClient.SendTextMessageAsync(message.Chat.Id, $"Info about IPsec {comp_chatID}: {resDelete}"); // присылаю ответ по удалению
+
+                            var total_users = await SelectedIPsec.GetTotalUserAsync();
+                            await botClient.SendTextMessageAsync(message.Chat.Id, $"Сервер КОМПОВ количество активных пользователей ПОСЛЕ удаления: {total_users} на сервере {server_id}");
+                        }
+
+                        return;
+                    }
+
+                    /// <summary>
+                    /// Если сообщение от пользователя /create_user_ipsec. Создаю клиента по ID из vpn ipsec для мобилы и добавляю в бд
+                    /// </summary>
+                    var match_create_ipsec = Regex.Match(message.Text.ToLower(), @"/create_user_ipsec (\d+) server (\d+) os (\d+)");
                     if (match_create_ipsec.Success)
                     {
                         long.TryParse(match_create_ipsec.Groups[1].Value, out long clientIDCreate);
@@ -636,11 +686,13 @@ namespace TelegramBotProject.TelegramBot
                             {
                                 SelectedIPsec = await botComands.CreateAndSendConfig_IpSec_IOS(botClient, clientIDCreate, server_id); // Отправка данных на сервер и формирование конфига. Отсылка готового конфига пользователю
                                 user.NameOS = NamesInlineButtons.IOS;
+                                user.TypeOfDevice = NamesInlineButtons.StartMobile;
                             }
                             else // android
                             {
                                 SelectedIPsec = await botComands.CreateAndSendConfig_IpSec_Android(botClient, clientIDCreate, server_id); // Отправка данных на сервер и формирование конфига. Отсылка готового конфига пользователю
                                 user.NameOS = NamesInlineButtons.Android;
+                                user.TypeOfDevice = NamesInlineButtons.StartMobile;
                             }
 
                             user.NameService = SelectedIPsec.NameCertainIPSec;
@@ -653,8 +705,66 @@ namespace TelegramBotProject.TelegramBot
                         return;
                     }
 
+                    /// <summary>
+                    /// Если сообщение от пользователя /create_user_ipsec_comp. Создаю клиента по ID из vpn ipsec для компа и добавляю в бд
+                    /// </summary>
+                    var match_create_ipsec_comp = Regex.Match(message.Text.ToLower(), @"/create_user_ipsec_comp (\d+) server (\d+) os (\d+)");
+                    if (match_create_ipsec_comp.Success)
+                    {
+                        long.TryParse(match_create_ipsec_comp.Groups[1].Value, out long clientIDCreate);
+                        int.TryParse(match_create_ipsec_comp.Groups[2].Value, out int server_id);
+                        long.TryParse(match_create_ipsec_comp.Groups[3].Value, out long os); // MacOS = 1 Windows = 0
+
+                        using (TgVpnbotContext db = new TgVpnbotContext())
+                        {
+                            var comp_chatID = clientIDCreate * USERS_COMP;
+                            var user = await db.Users.FirstOrDefaultAsync(u => u.ChatID == comp_chatID).ConfigureAwait(false);
+
+                            if (user != null) // если пользователь уже есть но он не активный
+                            {
+                                user.Status = "active";
+
+                                Log.Information("Админ create_client_ipsec, активировал старого пользователя, chatid: {chatid}, ОС: {os}", comp_chatID, os);
+                            }
+                            else // если новый пользователь
+                            {
+                                user = new UserDB
+                                {
+                                    ChatID = comp_chatID,
+                                };
+
+                                await db.Users.AddAsync(user);
+
+                                Log.Information("Админ create_client_ipsec, новый пользователь добавлен, chatid: {chatid}, ОС: {os}", comp_chatID, os);
+                            }
+
+                            IIPsec1 SelectedIPsec = null;
+
+                            if (os == 1) // MacOS возвращаю
+                            {
+                                SelectedIPsec = await comp_Comands.Comp_CreateAndSendConfig_IpSec_MacOS(botClient, clientIDCreate, server_id); // Отправка данных на сервер и формирование конфига. Отсылка готового конфига пользователю
+                                user.NameOS = NamesInlineButtons.MacOS;
+                                user.TypeOfDevice = NamesInlineButtons.StartComp;
+                            }
+                            else // Windows
+                            {
+                                SelectedIPsec = await comp_Comands.Comp_CreateAndSendConfig_IpSec_Windows(botClient, clientIDCreate, server_id); // Отправка данных на сервер и формирование конфига. Отсылка готового конфига пользователю
+                                user.NameOS = NamesInlineButtons.Windows;
+                                user.TypeOfDevice = NamesInlineButtons.StartComp;
+                            }
+
+                            user.NameService = SelectedIPsec.NameCertainIPSec;
+                            user.ServiceKey = comp_chatID;
+                            user.ServiceAddress = SelectedIPsec.ServerIPSec;
+
+                            await db.SaveChangesAsync();
+                        }
+
+                        return;
+                    }
+
                     #endregion
-//////////////////////////////////////////
+                    //////////////////////////////////////////
                     #region Socks Features
 
                     var match_create_socks = Regex.Match(message.Text.ToLower(), @"/create_user_socks (\d+) server (\d+) os (\d+)");
