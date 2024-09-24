@@ -792,6 +792,30 @@ namespace TelegramBotProject.Services
             }
         }
 
+        /// <summary>
+        /// Метод проверки и использования промокода пользователем
+        /// </summary>
+        /// <param name="botClient"></param>
+        /// <param name="chatID"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task BotAddDaysToUserAsync(ITelegramBotClient botClient, long chatID, int days, long adminID)
+        {
+            using (TgVpnbotContext db = new TgVpnbotContext())
+            {
+                var user = await db.Users.FirstOrDefaultAsync(u => u.ChatID == chatID).ConfigureAwait(false);
+
+                if (user != null)
+                {
+                    user.DateNextPayment = user.DateNextPayment.AddDays(days);
+                    await db.SaveChangesAsync();
+
+                    await botClient.SendTextMessageAsync(1278048494, $"Добавил пользователю {chatID} {days} дней");
+                    await botClient.SendTextMessageAsync(adminID, $"Добавил пользователю {chatID} {days} дней");
+                }
+            }
+        }
+
         ////////////////////////////////////////////////  СПОМОГАТЕЛЬНЫЕ МЕТОДЫ /////////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>

@@ -42,7 +42,7 @@ namespace TelegramBotProject.TelegramBot
         static public string BotName { get; } = StartUp.GetTokenfromConfig("BotName");
         static public int Price_1_Month { get; } = 99;
         static public int Price_3_Month { get; } = 249;
-        static public int Comp_CountINServerIpSec { get; set; } = 20; // максимум количесвто человек на сервере
+        static public int Comp_CountINServer { get; set; } = 20; // максимум количесвто человек на сервере
         static public int CountINServerIpSec { get; set; } = 70; // максимум количесвто человек на сервере
         static public int CountINServerSocks { get; set; } = 35; // максимум количесвто человек на сервере
         static public string PromocodeName { get; set; } = "testPromo";// промокод для участия в акциях
@@ -442,6 +442,20 @@ namespace TelegramBotProject.TelegramBot
                     }
 
                     /// <summary>
+                    /// Если сообщение от пользователя /bot_change_count_max_users_ipsec_comp_in_server. Изменяю макс кол-во пользователей на серваках ipsec
+                    /// </summary>
+                    var match_change_count_user_ipsec_comp = Regex.Match(message.Text.ToLower(), @"/bot_change_count_max_users_ipsec_comp_in_server (\d+)");
+                    if (match_change_count_user_ipsec_comp.Success)
+                    {
+                        int.TryParse(match_change_count_user_ipsec_comp.Groups[1].Value, out int countUsersServer);
+
+                        Comp_CountINServer = countUsersServer; // мняю мах кол-во пользователей на сервере 
+
+                        await botClient.SendTextMessageAsync(message.Chat.Id, $"Успех, поменял на {CountINServerIpSec} для Компов");
+                        return;
+                    }
+
+                    /// <summary>
                     /// Если сообщение от пользователя /bot_change_count_max_users_ipsec_in_server. Изменяю макс кол-во пользователей на серваках ipsec
                     /// </summary>
                     var match_change_count_user_ipsec = Regex.Match(message.Text.ToLower(), @"/bot_change_count_max_users_ipsec_in_server (\d+)");
@@ -537,8 +551,20 @@ namespace TelegramBotProject.TelegramBot
                         await botComands.BotMarkBlatnoiAsync(botClient, clientID, message.Chat.Id);
                         return;
                     }
+
+                    /// <summary>
+                    /// Если сообщение от пользователя /bot_mark_blatnoi. Делаю пользователя блатным
+                    /// </summary>
+                    var match_add_days = Regex.Match(message.Text.ToLower(), @"/bot_add_days_user (\d+) days (\d+)");
+                    if (match_add_days.Success)
+                    {
+                        long.TryParse(match_add_days.Groups[1].Value, out long clientID);
+                        int.TryParse(match_add_days.Groups[2].Value, out int days);
+                        await botComands.BotAddDaysToUserAsync(botClient, clientID, days, message.Chat.Id);
+                        return;
+                    }
                     #endregion
-//////////////////////////////////////////
+                    //////////////////////////////////////////
                     #region IPSec Features
 
                     /// <summary>
@@ -822,7 +848,7 @@ namespace TelegramBotProject.TelegramBot
                     /// <summary>
                     /// Если сообщение от пользователя /delete_client_socks. Удаляю клиента по ID из vpn socks
                     /// </summary>
-                    var match_del_socks = Regex.Match(message.Text.ToLower(), @"/delete_client_socks (\d+) server (\d+) keyid (\d+)");
+                    var match_del_socks = Regex.Match(message.Text.ToLower(), @"/delete_user_socks (\d+) server (\d+) keyid (\d+)");
                     if (match_del_socks.Success)
                     {
                         long.TryParse(match_del_socks.Groups[1].Value, out long clientID);

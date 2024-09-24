@@ -85,7 +85,7 @@ namespace TelegramBotProject.Services
             {
                 var temp_server = comp_ipsecResolver(item);
                 var count_users = await temp_server.GetTotalUserAsync();
-                if (count_users < TgBotHostedService.Comp_CountINServerIpSec)
+                if (count_users < TgBotHostedService.Comp_CountINServer)
                     return item;
             }
 
