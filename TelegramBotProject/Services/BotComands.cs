@@ -604,7 +604,7 @@ namespace TelegramBotProject.Services
                 var ref_user = await db.Users.FirstOrDefaultAsync(u => u.ChatID == chatid && u.Status == "active"); // проверяю есть ли такой активный пользователь и может ли голосовать
                 if (ref_user != null)
                 {
-                    if(ref_user.ProviderPaymentChargeId == NamesInlineButtons.Mobile_TryFreePeriod)
+                    if (ref_user.ProviderPaymentChargeId == NamesInlineButtons.Mobile_TryFreePeriod)
                     {
                         await botClient.SendTextMessageAsync(chatid, $"Увы, реферальная программа не действует на пробном периоде 😢");
                         return;
@@ -629,7 +629,7 @@ namespace TelegramBotProject.Services
                             await db.SaveChangesAsync();
 
                             await botClient.SendTextMessageAsync(chatid, $"Пользователю с chatID: {clientID} добавлен 1 голос от вас 🥳");
-                            await botClient.SendTextMessageAsync(clientID, $"Пользователь с chatID: {chatid} проголосовал за вас, теперь вы его пригласитель  🥳");
+                            await botClient.SendTextMessageAsync(clientID, $"Пользователь с chatID: {chatid} проголосовал за вас, теперь вы его пригласитель 🥳");
 
                             user = await db.Users.FirstOrDefaultAsync(u => u.ChatID == clientID && u.Status == "active");
 
