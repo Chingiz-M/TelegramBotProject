@@ -40,8 +40,10 @@ namespace TelegramBotProject.TelegramBot
         /// </summary>
         static private bool BOT_FIX_MODE { get; set; } = false;
         static public string BotName { get; } = StartUp.GetTokenfromConfig("BotName");
-        static public int Price_1_Month { get; } = 99;
-        static public int Price_3_Month { get; } = 249;
+        static public int Price_1_Month_mobile { get; } = 99;
+        static public int Price_1_Month_comp { get; } = 119;
+        static public int Price_3_Month_mobile { get; } = 249;
+        static public int Price_3_Month_comp { get; } = 299;
         static public int Comp_CountINServer { get; set; } = 20; // максимум количесвто человек на сервере
         static public int CountINServerIpSec { get; set; } = 70; // максимум количесвто человек на сервере
         static public int CountINServerSocks { get; set; } = 35; // максимум количесвто человек на сервере
@@ -224,8 +226,7 @@ namespace TelegramBotProject.TelegramBot
                     /// </summary>
                     if (message.Text.ToLower() == "/get_chat_id")
                     {
-                        await botClient.SendTextMessageAsync(message.Chat.Id, $"Ваш Mobile Chat ID: {message.Chat.Id}\n" +
-                            $"Ваш Comp Chat ID: {message.Chat.Id * USERS_COMP}");
+                        await botClient.SendTextMessageAsync(message.Chat.Id, $"Ваш Chat ID: {message.Chat.Id}");
                         return;
                     }
 
@@ -419,11 +420,30 @@ namespace TelegramBotProject.TelegramBot
                                 $"Сервис: {user.NameService}\n" +
                                 $"ОС: {user.NameOS}\n" +
                                 $"Ключ: {user.ServiceKey}\n" +
-                                $"Адрес сервера: {user.ServiceAddress}";
+                                $"Адрес сервера: {user.ServiceAddress}\n\n";
                         }
                         else
                         {
                             result = $"Пользователь с chatID {clientID} отсутствует в БД";
+                        }
+
+                        var user_comp = await botComands.BotCheckUserBDAsync(clientID * USERS_COMP, 2); // есть ли ваще
+
+                        if (user_comp != null)
+                        {
+                            result += $"ChatID: {user_comp.ChatID}\n" +
+                                $"Вид устройства: {user_comp.TypeOfDevice}\n" +
+                                $"Ник нейм: {user_comp.FirstName}\n" +
+                                $"Status: {user_comp.Status}\n" +
+                                $"Активен до: {user_comp.DateNextPayment}\n" +
+                                $"Сервис: {user_comp.NameService}\n" +
+                                $"ОС: {user_comp.NameOS}\n" +
+                                $"Ключ: {user_comp.ServiceKey}\n" +
+                                $"Адрес сервера: {user_comp.ServiceAddress}";
+                        }
+                        else
+                        {
+                            result += $"Пользователь не использует сервис для ПК";
                         }
 
                         await botClient.SendTextMessageAsync(message.Chat.Id, result);
@@ -988,14 +1008,14 @@ namespace TelegramBotProject.TelegramBot
                     // SELECT PERIOD CONTINUE_PAYMENT Comp 1 month
                     if (button.Data == NamesInlineButtons.ContinuePayment_Comp_1_month)
                     {
-                        await botComands.BotCheckStatusUserAndSendContinuePayInvoice(botClient, button.Message.Chat.Id, NamesInlineButtons.ContinuePayment_Comp_1_month, 1, NamesInlineButtons.StartComp);
+                        await botComands.BotCheckStatusUserAndSendContinuePayInvoice(botClient, button.Message.Chat.Id, NamesInlineButtons.ContinuePayment_Comp_1_month, 21, NamesInlineButtons.StartComp);
                         return;
                     }
 
                     // SELECT PERIOD CONTINUE_PAYMENT Comp 3 month
                     if (button.Data == NamesInlineButtons.ContinuePayment_Comp_3_month)
                     {
-                        await botComands.BotCheckStatusUserAndSendContinuePayInvoice(botClient, button.Message.Chat.Id, NamesInlineButtons.ContinuePayment_Comp_3_month, 3, NamesInlineButtons.StartComp);
+                        await botComands.BotCheckStatusUserAndSendContinuePayInvoice(botClient, button.Message.Chat.Id, NamesInlineButtons.ContinuePayment_Comp_3_month, 23, NamesInlineButtons.StartComp);
                         return;
                     }
 
@@ -1264,28 +1284,28 @@ namespace TelegramBotProject.TelegramBot
                         // SELECT PERIOD           1 MONTH IPSEC MacOS  
                         if (button.Data == NamesInlineButtons.Comp_Payment_MacOS_1_month)
                         {
-                            await botComands.BotSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.Comp_Payment_MacOS_1_month, 1, NamesInlineButtons.StartComp);
+                            await botComands.BotSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.Comp_Payment_MacOS_1_month, 21, NamesInlineButtons.StartComp);
                             return;
                         }
 
                         // SELECT PERIOD           3 MONTH IPSEC MacOS  
                         if (button.Data == NamesInlineButtons.Comp_Payment_MacOS_3_month)
                         {
-                            await botComands.BotSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.Comp_Payment_MacOS_3_month, 3, NamesInlineButtons.StartComp);
+                            await botComands.BotSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.Comp_Payment_MacOS_3_month, 23, NamesInlineButtons.StartComp);
                             return;
                         }
 
                         // SELECT PERIOD           1 MONTH IPSEC Windows  
                         if (button.Data == NamesInlineButtons.Comp_Payment_Windows_1_month)
                         {
-                            await botComands.BotSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.Comp_Payment_Windows_1_month, 1, NamesInlineButtons.StartComp);
+                            await botComands.BotSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.Comp_Payment_Windows_1_month, 21, NamesInlineButtons.StartComp);
                             return;
                         }
 
                         // SELECT PERIOD           3 MONTH IPSEC Windows  
                         if (button.Data == NamesInlineButtons.Comp_Payment_Windows_3_month)
                         {
-                            await botComands.BotSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.Comp_Payment_Windows_3_month, 3, NamesInlineButtons.StartComp);
+                            await botComands.BotSendInvoiceAsync(botClient, real_chatId, NamesInlineButtons.Comp_Payment_Windows_3_month, 23, NamesInlineButtons.StartComp);
                             return;
                         }
                     }
