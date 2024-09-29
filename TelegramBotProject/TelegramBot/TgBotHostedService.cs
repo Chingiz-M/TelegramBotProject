@@ -110,6 +110,7 @@ namespace TelegramBotProject.TelegramBot
 
                 var botComands = Program.HostApp.Services.GetRequiredService<IBotCommands>();
                 var comp_Comands = Program.HostApp.Services.GetRequiredService<ICompMethods>();
+                var mobile_Comands = Program.HostApp.Services.GetRequiredService<IMobileMethods>();
 
                 /// <summary>
                 /// Если апдейт от пользователя представляет сообщение (текст, стикер, картинка и тд) 
@@ -146,7 +147,7 @@ namespace TelegramBotProject.TelegramBot
                             }
                             else // платные телефоны
                             {
-                                await botComands.BotNewPaymentAsync(botClient, payment, update); //Создание пользователя и занесение в БД если ты новый пользователь или неактивный
+                                await mobile_Comands.Mobile_NewPaymentAsync(botClient, payment, update); //Создание пользователя и занесение в БД если ты новый пользователь или неактивный
                             }
                         }
 
@@ -576,21 +577,33 @@ namespace TelegramBotProject.TelegramBot
                     {
                         foreach (var item in IPSEC_SERVERS_LIST)
                         {
-                            if (item != "IPSEC_1")
+                            try
                             {
-                                var SelectedIPsec = IPSecResolver(item);
-                                var total_users = await SelectedIPsec.GetTotalUserAsync();
-                                await botClient.SendTextMessageAsync(message.Chat.Id, $"Количестов активных пользователей: {total_users} на сервере {item}");
+                                if (item != "IPSEC_1")
+                                {
+                                    var SelectedIPsec = IPSecResolver(item);
+                                    var total_users = await SelectedIPsec.GetTotalUserAsync();
+                                    await botClient.SendTextMessageAsync(message.Chat.Id, $"Количестов активных пользователей: {total_users} на сервере {item}");
+                                }
+                            }
+                            catch(Exception exx) 
+                            {
+                                await botClient.SendTextMessageAsync(message.Chat.Id, $"Не пашет {item}!");
                             }
                         }
 
                         foreach (var item in Comp_IPSEC_SERVERS_LIST)
                         {
-
-                            var SelectedIPsec = CompIPSecResolver(item);
-                            var total_users = await SelectedIPsec.GetTotalUserAsync();
-                            await botClient.SendTextMessageAsync(message.Chat.Id, $"Количестов активных пользователей: {total_users} на сервере {item}");
-
+                            try
+                            {
+                                var SelectedIPsec = CompIPSecResolver(item);
+                                var total_users = await SelectedIPsec.GetTotalUserAsync();
+                                await botClient.SendTextMessageAsync(message.Chat.Id, $"Количестов активных пользователей: {total_users} на сервере {item}");
+                            }
+                            catch (Exception exx)
+                            {
+                                await botClient.SendTextMessageAsync(message.Chat.Id, $"Не пашет {item}!");
+                            }
                         }
                         return;
                     }
@@ -711,13 +724,13 @@ namespace TelegramBotProject.TelegramBot
 
                             if(os == 1) // ios возвращаю
                             {
-                                SelectedIPsec = await botComands.CreateAndSendConfig_IpSec_IOS(botClient, clientIDCreate, server_id); // Отправка данных на сервер и формирование конфига. Отсылка готового конфига пользователю
+                                SelectedIPsec = await mobile_Comands.Mobile_CreateAndSendConfig_IpSec_IOS(botClient, clientIDCreate, server_id); // Отправка данных на сервер и формирование конфига. Отсылка готового конфига пользователю
                                 user.NameOS = NamesInlineButtons.IOS;
                                 user.TypeOfDevice = NamesInlineButtons.StartMobile;
                             }
                             else // android
                             {
-                                SelectedIPsec = await botComands.CreateAndSendConfig_IpSec_Android(botClient, clientIDCreate, server_id); // Отправка данных на сервер и формирование конфига. Отсылка готового конфига пользователю
+                                SelectedIPsec = await mobile_Comands.Mobile_CreateAndSendConfig_IpSec_Android(botClient, clientIDCreate, server_id); // Отправка данных на сервер и формирование конфига. Отсылка готового конфига пользователю
                                 user.NameOS = NamesInlineButtons.Android;
                                 user.TypeOfDevice = NamesInlineButtons.StartMobile;
                             }
@@ -828,12 +841,12 @@ namespace TelegramBotProject.TelegramBot
                             
                             if (os == 1) // ios возвращаю
                             {
-                                resFunc = await botComands.CreateAndSendKey_Socks(botClient, clientID, NamesInlineButtons.IOS, server_id);
+                                resFunc = await mobile_Comands.Mobile_CreateAndSendKey_Socks(botClient, clientID, NamesInlineButtons.IOS, server_id);
                                 user.NameOS = NamesInlineButtons.IOS;
                             }
                             else // android
                             {
-                                resFunc = await botComands.CreateAndSendKey_Socks(botClient, clientID, NamesInlineButtons.Android, server_id);
+                                resFunc = await mobile_Comands.Mobile_CreateAndSendKey_Socks(botClient, clientID, NamesInlineButtons.Android, server_id);
                                 user.NameOS = NamesInlineButtons.Android;
                             }
 
@@ -1002,7 +1015,7 @@ namespace TelegramBotProject.TelegramBot
                         // START BOT MOBILE
                         if (button.Data == NamesInlineButtons.StartMobile)
                         {
-                            await botComands.BotStartAsync(botClient, real_chatId);
+                            await mobile_Comands.Mobile_BotStartAsync(botClient, real_chatId);
                             return;
                         }
 
@@ -1013,7 +1026,7 @@ namespace TelegramBotProject.TelegramBot
                             // START Free period BUTTON MOBILE
                             if (button.Data == NamesInlineButtons.Mobile_TryFreePeriod)
                             {
-                                await botComands.BotSelectServiceAsync(botClient, real_chatId, TypeConnect.Free);
+                                await mobile_Comands.Mobile_SelectServiceAsync(botClient, real_chatId, TypeConnect.Free);
                                 return;
                             }
 
@@ -1022,21 +1035,21 @@ namespace TelegramBotProject.TelegramBot
                             // FREE BUTTON Mobile IPSEC
                             if (button.Data == NamesInlineButtons.Mobile_TryFreePeriod_IpSec)
                             {
-                                await botComands.BotSelectOpSysAsync(botClient, real_chatId, button.Message.Chat?.FirstName, NamesInlineButtons.Mobile_TryFreePeriod_IpSec);
+                                await mobile_Comands.Mobile_SelectOpSysAsync(botClient, real_chatId, button.Message.Chat?.FirstName, NamesInlineButtons.Mobile_TryFreePeriod_IpSec);
                                 return;
                             }
 
                             // FREE BUTTON Mobile IPSEC IOS
                             if (button.Data == NamesInlineButtons.Mobile_TryFreePeriod_IpSec_ios)
                             {
-                                await botComands.BotBeginFreePeriodAsync(botClient, button, NamesInlineButtons.Mobile_TryFreePeriod_IpSec_ios);
+                                await mobile_Comands.Mobile_BeginFreePeriodAsync(botClient, button, NamesInlineButtons.Mobile_TryFreePeriod_IpSec_ios);
                                 return;
                             }
 
                             // FREE BUTTON Mobile IPSEC ANDROID
                             if (button.Data == NamesInlineButtons.Mobile_TryFreePeriod_IpSec_android)
                             {
-                                await botComands.BotBeginFreePeriodAsync(botClient, button, NamesInlineButtons.Mobile_TryFreePeriod_IpSec_android);
+                                await mobile_Comands.Mobile_BeginFreePeriodAsync(botClient, button, NamesInlineButtons.Mobile_TryFreePeriod_IpSec_android);
                                 return;
                             }
 
@@ -1045,21 +1058,21 @@ namespace TelegramBotProject.TelegramBot
                             // FREE BUTTON MOBILE SOCKS
                             if (button.Data == NamesInlineButtons.Mobile_TryFreePeriod_Socks)
                             {
-                                await botComands.BotSelectOpSysAsync(botClient, real_chatId, button.Message.Chat?.FirstName, NamesInlineButtons.Mobile_TryFreePeriod_Socks);
+                                await mobile_Comands.Mobile_SelectOpSysAsync(botClient, real_chatId, button.Message.Chat?.FirstName, NamesInlineButtons.Mobile_TryFreePeriod_Socks);
                                 return;
                             }
 
                             // FREE BUTTON MOBILE SOCKS IOS
                             if (button.Data == NamesInlineButtons.Mobile_TryFreePeriod_Socks_ios)
                             {
-                                await botComands.BotBeginFreePeriodAsync(botClient, button, NamesInlineButtons.Mobile_TryFreePeriod_Socks_ios);
+                                await mobile_Comands.Mobile_BeginFreePeriodAsync(botClient, button, NamesInlineButtons.Mobile_TryFreePeriod_Socks_ios);
                                 return;
                             }
 
                             // FREE BUTTON MOBILE SOCKS ANDROID
                             if (button.Data == NamesInlineButtons.Mobile_TryFreePeriod_Socks_android)
                             {
-                                await botComands.BotBeginFreePeriodAsync(botClient, button, NamesInlineButtons.Mobile_TryFreePeriod_Socks_android);
+                                await mobile_Comands.Mobile_BeginFreePeriodAsync(botClient, button, NamesInlineButtons.Mobile_TryFreePeriod_Socks_android);
                                 return;
                             }                           
 
@@ -1073,7 +1086,7 @@ namespace TelegramBotProject.TelegramBot
                         // PAYMENT BUTTON Mobile IPSEC
                         if (button.Data == NamesInlineButtons.StartIPSEC)
                         {
-                            await botComands.BotSelectOpSysAsync(botClient, real_chatId, button.Message.Chat?.FirstName, NamesInlineButtons.StartIPSEC);
+                            await mobile_Comands.Mobile_SelectOpSysAsync(botClient, real_chatId, button.Message.Chat?.FirstName, NamesInlineButtons.StartIPSEC);
                             return;
                         }
 
@@ -1096,7 +1109,7 @@ namespace TelegramBotProject.TelegramBot
                         // PAYMENT BUTTON Mobile SOCKS
                         if (button.Data == NamesInlineButtons.StartSocks)
                         {
-                            await botComands.BotSelectOpSysAsync(botClient, real_chatId, button.Message.Chat?.FirstName, NamesInlineButtons.StartSocks);
+                            await mobile_Comands.Mobile_SelectOpSysAsync(botClient, real_chatId, button.Message.Chat?.FirstName, NamesInlineButtons.StartSocks);
                             return;
                         }
 
