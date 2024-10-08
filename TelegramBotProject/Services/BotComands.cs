@@ -512,7 +512,13 @@ namespace TelegramBotProject.Services
                 if (typeService == NamesInlineButtons.AllUsers)
                 {
                     listID = await db.Users
-                    .Where(u => u.Status == "active" && u.Blatnoi == false)
+                    .Where(u => u.Status == "active")
+                    .Select(user => user.ChatID).ToListAsync().ConfigureAwait(false);
+                }
+                if (typeService == NamesInlineButtons.StartComp)
+                {
+                    listID = await db.Users
+                    .Where(u => u.Status == "active" && u.TypeOfDevice == NamesInlineButtons.StartComp)
                     .Select(user => user.ChatID).ToListAsync().ConfigureAwait(false);
                 }
             }
