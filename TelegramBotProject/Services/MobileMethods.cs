@@ -75,13 +75,11 @@ namespace TelegramBotProject.Services
         {
             foreach (var item in TgBotHostedService.IPSEC_SERVERS_LIST)
             {
-                if (item != "IPSEC_1")
-                {
-                    var temp_server = ipsecResolver(item);
-                    var count_users = await temp_server.GetTotalUserAsync();
-                    if (count_users < TgBotHostedService.CountINServerIpSec)
-                        return item;
-                }
+                var temp_server = ipsecResolver(item);
+                var count_users = await temp_server.GetTotalUserAsync();
+                if (count_users < TgBotHostedService.CountINServerIpSec)
+                    return item;
+
             }
 
             return TgBotHostedService.IPSEC_SERVERS_LIST[0];
@@ -431,8 +429,8 @@ namespace TelegramBotProject.Services
             var mes = await botClient.SendVideoAsync(
             chatId: chatID,
             video: "BAACAgIAAxkDAAIUUWYHJaIibWl1V3tdreo9O829c6EvAAKAQAACT21BSKKYYspolrvkNAQ"); // fileid video ios ipsec NamelessNetwork
-                                                                                               //video: "BAACAgIAAxkBAAPXZJ9ombTpDVjZdPbUrIUnqI_H4KMAAjA0AAL0QfhIJJN1oofbubovBA"); // fileid video ios ipsec TestNamelessVPN
-                                                                                               //video: new InputOnlineFile(content: stream, fileName: $"Тестовая инструкция"));
+            //video: "BAACAgIAAxkBAAPXZJ9ombTpDVjZdPbUrIUnqI_H4KMAAjA0AAL0QfhIJJN1oofbubovBA"); // fileid video ios ipsec TestNamelessVPN
+                                                                                          //video: new InputOnlineFile(content: stream, fileName: $"Тестовая инструкция"));
 
             await ipsecServer.CreateUserConfigAsync(botClient, chatID, "getconf", "mobileconfig", NamesInlineButtons.StartMobile); // Отправка данных на сервер и формирование конфига. Отсылка готового конфига пользователю
 

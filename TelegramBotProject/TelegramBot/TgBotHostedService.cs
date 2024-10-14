@@ -46,7 +46,7 @@ namespace TelegramBotProject.TelegramBot
         static public int Price_3_Month_comp { get; } = 299;
         static public int Comp_CountINServer { get; set; } = 70; // максимум количесвто человек на сервере
         static public int CountINServerIpSec { get; set; } = 70; // максимум количесвто человек на сервере
-        static public int CountINServerSocks { get; set; } = 35; // максимум количесвто человек на сервере
+        static public int CountINServerSocks { get; set; } = 30; // максимум количесвто человек на сервере
         static public string PromocodeName { get; set; } = "testPromo";// промокод для участия в акциях
         static public bool PROMOCODE_MODE { get; set; } = false; // переменная для включения и отключения действия промокода
         static public int USERS_COMP { get; set; } = 1000; // число на которое умножается chaid пользователя для получения id для компа для этого пользователя
@@ -55,7 +55,7 @@ namespace TelegramBotProject.TelegramBot
         /// <summary>
         /// Список доступных серваков ipsec ПОРЯДОК ВАЖЕН ТАК КАК СОЗДАЮТСЯ NAMECERTAIN В КАЖДОМ КЛАССЕ
         /// </summary>
-        public static readonly string[] Comp_IPSEC_SERVERS_LIST = { "Comp_IPSEC_1" };
+        public static readonly string[] Comp_IPSEC_SERVERS_LIST = { "Comp_IPSEC_1", "Comp_IPSEC_2" };
         /// <summary>
         /// Список доступных серваков ipsec ПОРЯДОК ВАЖЕН ТАК КАК СОЗДАЮТСЯ NAMECERTAIN В КАЖДОМ КЛАССЕ
         /// </summary>
@@ -605,12 +605,9 @@ namespace TelegramBotProject.TelegramBot
                         {
                             try
                             {
-                                if (item != "IPSEC_1")
-                                {
-                                    var SelectedIPsec = IPSecResolver(item);
-                                    var total_users = await SelectedIPsec.GetTotalUserAsync();
-                                    await botClient.SendTextMessageAsync(message.Chat.Id, $"Количестов активных пользователей: {total_users} на сервере {item}");
-                                }
+                                var SelectedIPsec = IPSecResolver(item);
+                                var total_users = await SelectedIPsec.GetTotalUserAsync();
+                                await botClient.SendTextMessageAsync(message.Chat.Id, $"Количестов активных пользователей: {total_users} на сервере {item}");
                             }
                             catch(Exception exx) 
                             {
