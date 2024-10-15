@@ -91,7 +91,10 @@ namespace TelegramBotProject.TelegramBot
                             if (message.Text.ToLower() == "/bot_fix_mode_false")
                             {
                                 if (message.Chat.Id == 1278048494) // только я могу переводить в режим починки
+                                {
+                                    await botClient.SendTextMessageAsync(message.Chat.Id, "Бот в режиме LIVE.");
                                     BOT_FIX_MODE = false;
+                                }
                                 return;
                             }
                         if (message.Chat.Id > 0)
@@ -422,6 +425,7 @@ namespace TelegramBotProject.TelegramBot
                                 $"Вид устройства: {user.TypeOfDevice}\n" +
                                 $"Ник нейм: {user.FirstName}\n" +
                                 $"Status: {user.Status}\n" +
+                                $"Блатной: {user.Blatnoi}\n" +
                                 $"Активен до: {user.DateNextPayment}\n" +
                                 $"Сервис: {user.NameService}\n" +
                                 $"ОС: {user.NameOS}\n" +
@@ -441,6 +445,7 @@ namespace TelegramBotProject.TelegramBot
                                 $"Вид устройства: {user_comp.TypeOfDevice}\n" +
                                 $"Ник нейм: {user_comp.FirstName}\n" +
                                 $"Status: {user_comp.Status}\n" +
+                                $"Блатной: {user_comp.Blatnoi}\n" +
                                 $"Активен до: {user_comp.DateNextPayment}\n" +
                                 $"Сервис: {user_comp.NameService}\n" +
                                 $"ОС: {user_comp.NameOS}\n" +

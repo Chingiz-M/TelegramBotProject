@@ -427,11 +427,15 @@ namespace TelegramBotProject.Services
 
                 if (user != null)
                 {
-                    user.Blatnoi = true;
+                    if(user.Blatnoi)
+                        user.Blatnoi = false;
+                    else
+                        user.Blatnoi = true;
+
                     await db.SaveChangesAsync();
 
-                    await botClient.SendTextMessageAsync(1278048494, $"Сделал пользователя {chatID} блатным");
-                    await botClient.SendTextMessageAsync(adminID, $"Сделал пользователя {chatID} блатным");
+                    await botClient.SendTextMessageAsync(1278048494, $"Сделал пользователя {chatID} блатным: {user.Blatnoi}");
+                    await botClient.SendTextMessageAsync(adminID, $"Сделал пользователя {chatID} блатным: {user.Blatnoi}");
                 }
             }
         }
@@ -519,6 +523,12 @@ namespace TelegramBotProject.Services
                 {
                     listID = await db.Users
                     .Where(u => u.Status == "active" && u.TypeOfDevice == NamesInlineButtons.StartComp)
+                    .Select(user => user.ChatID).ToListAsync().ConfigureAwait(false);
+                }
+                if (typeService == "nonactive")
+                {
+                    listID = await db.Users
+                    .Where(u => u.Status == "nonactive")
                     .Select(user => user.ChatID).ToListAsync().ConfigureAwait(false);
                 }
             }
