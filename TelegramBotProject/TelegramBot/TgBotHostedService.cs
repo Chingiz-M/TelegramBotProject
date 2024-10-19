@@ -337,7 +337,47 @@ namespace TelegramBotProject.TelegramBot
                     }
 
                     /// <summary>
-                    /// Если сообщение от пользователя /send_message_to_IPSecUsers_ios. Отправляю сообщение всем АКТИВНЫМ НЕ БЛАТНЫМ пользователям IPSEC ios
+                    /// Если сообщение от пользователя /send_message_to_server_ipsec. Отправляю сообщение юзеру
+                    /// </summary>
+                    var send_message_to_server_ipsec = Regex.Match(message.Text, @"/send_message_to_server_ipsec (\d+)((.*\n{0,}){0,})");
+                    if (send_message_to_server_ipsec.Success)
+                    {
+                        int.TryParse(send_message_to_server_ipsec.Groups[1].Value, out int serverID);
+                        string text = send_message_to_server_ipsec.Groups[2].Value;
+
+                        if (text == "")
+                            await botClient.SendTextMessageAsync(message.Chat.Id, "Текст пуст и не отправлен пользователям");
+                        else
+                        {
+                            var count = await botComands.BotSendMessageToUsersInDBAsync(botClient, "server_ipsec", text, serverID);
+                            await botClient.SendTextMessageAsync(message.Chat.Id, $"Текст отправлен {count} пользователям");
+                        }
+
+                        return;
+                    }
+
+                    /// <summary>
+                    /// Если сообщение от пользователя /send_message_to_user. Отправляю сообщение юзеру
+                    /// </summary>
+                    var send_message_to_server_socks = Regex.Match(message.Text, @"/send_message_to_server_socks (\d+)((.*\n{0,}){0,})");
+                    if (send_message_to_server_socks.Success)
+                    {
+                        int.TryParse(send_message_to_server_socks.Groups[1].Value, out int serverID);
+                        string text = send_message_to_server_socks.Groups[2].Value;
+
+                        if (text == "")
+                            await botClient.SendTextMessageAsync(message.Chat.Id, "Текст пуст и не отправлен пользователям");
+                        else
+                        {
+                            var count = await botComands.BotSendMessageToUsersInDBAsync(botClient, "server_socks", text, serverID);
+                            await botClient.SendTextMessageAsync(message.Chat.Id, $"Текст отправлен {count} пользователям");
+                        }
+
+                        return;
+                    }
+
+                    /// <summary>
+                    /// Если сообщение от пользователя /send_message_to_IPSecUsers_ios. Отправляю сообщение всем АКТИВНЫМ пользователям IPSEC ios
                     /// </summary>
                     var match_send_message_to_IPSecUsers = Regex.Match(message.Text, @"/send_message_to_IPSecUsers_ios((.*\n{0,}){0,})");
                     if (match_send_message_to_IPSecUsers.Success)
@@ -347,7 +387,7 @@ namespace TelegramBotProject.TelegramBot
                             await botClient.SendTextMessageAsync(message.Chat.Id, "Текст пуст и не отправлен пользователям");
                         else
                         {
-                            var count = await botComands.BotSendMessageToUsersInDBAsync(botClient, NamesInlineButtons.IPSEC_ios, text);
+                            var count = await botComands.BotSendMessageToUsersInDBAsync(botClient, NamesInlineButtons.IPSEC_ios, text, 0);
                             await botClient.SendTextMessageAsync(message.Chat.Id, $"Текст отправлен {count} пользователям");
                         }                        
 
@@ -355,7 +395,7 @@ namespace TelegramBotProject.TelegramBot
                     }
 
                     /// <summary>
-                    /// Если сообщение от пользователя /send_message_to_IPSecUsers_android. Отправляю сообщение всем АКТИВНЫМ НЕ БЛАТНЫМ пользователям IPSEC android
+                    /// Если сообщение от пользователя /send_message_to_IPSecUsers_android. Отправляю сообщение всем АКТИВНЫМ пользователям IPSEC android
                     /// </summary>
                     var match_send_message_to_IPSecUsers_andr = Regex.Match(message.Text, @"/send_message_to_IPSecUsers_android((.*\n{0,}){0,})");
                     if (match_send_message_to_IPSecUsers_andr.Success)
@@ -365,7 +405,7 @@ namespace TelegramBotProject.TelegramBot
                             await botClient.SendTextMessageAsync(message.Chat.Id, "Текст пуст и не отправлен пользователям");
                         else
                         {
-                            var count = await botComands.BotSendMessageToUsersInDBAsync(botClient, NamesInlineButtons.IPSEC_android, text);
+                            var count = await botComands.BotSendMessageToUsersInDBAsync(botClient, NamesInlineButtons.IPSEC_android, text, 0);
                             await botClient.SendTextMessageAsync(message.Chat.Id, $"Текст отправлен {count} пользователям");
                         }                        
 
@@ -373,7 +413,7 @@ namespace TelegramBotProject.TelegramBot
                     }
 
                     /// <summary>
-                    /// Если сообщение от пользователя /send_message_to_SocksUsers. Отправляю сообщение всем АКТИВНЫМ НЕ БЛАТНЫМ пользователям SOCKS
+                    /// Если сообщение от пользователя /send_message_to_SocksUsers. Отправляю сообщение всем АКТИВНЫМ пользователям SOCKS
                     /// </summary>
                     var match_send_message_to_SocksUsers = Regex.Match(message.Text, @"/send_message_to_SocksUsers((.*\n{0,}){0,})");
                     if (match_send_message_to_SocksUsers.Success)
@@ -383,7 +423,7 @@ namespace TelegramBotProject.TelegramBot
                             await botClient.SendTextMessageAsync(message.Chat.Id, "Текст пуст и не отправлен пользователям");
                         else
                         {
-                            var count = await botComands.BotSendMessageToUsersInDBAsync(botClient, NamesInlineButtons.Socks, text);
+                            var count = await botComands.BotSendMessageToUsersInDBAsync(botClient, NamesInlineButtons.Socks, text, 0);
                             await botClient.SendTextMessageAsync(message.Chat.Id, $"Текст отправлен {count} пользователям");
                         }                       
 
@@ -391,7 +431,7 @@ namespace TelegramBotProject.TelegramBot
                     }
 
                     /// <summary>
-                    /// Если сообщение от пользователя /send_message_to_AllUsers. Отправляю сообщение всем АКТИВНЫМ НЕ БЛАТНЫМ пользователям SOCKS
+                    /// Если сообщение от пользователя /send_message_to_AllUsers. Отправляю сообщение всем АКТИВНЫМ пользователям
                     /// </summary>
                     var match_send_message_to_AllUsers = Regex.Match(message.Text, @"/send_message_to_AllUsers((.*\n{0,}){0,})");
                     if (match_send_message_to_AllUsers.Success)
@@ -401,9 +441,27 @@ namespace TelegramBotProject.TelegramBot
                             await botClient.SendTextMessageAsync(message.Chat.Id, "Текст пуст и не отправлен пользователям");
                         else
                         {
-                            var count = await botComands.BotSendMessageToUsersInDBAsync(botClient, NamesInlineButtons.AllUsers, text);
+                            var count = await botComands.BotSendMessageToUsersInDBAsync(botClient, NamesInlineButtons.AllUsers, text, 0);
                             await botClient.SendTextMessageAsync(message.Chat.Id, $"Текст отправлен {count} пользователям");
                         }                        
+
+                        return;
+                    }
+
+                    /// <summary>
+                    /// Если сообщение от пользователя /send_message_to_AllUsers. Отправляю сообщение всем НЕАКТИВНЫМ пользователям
+                    /// </summary>
+                    var match_send_message_to_NonActiveUsers = Regex.Match(message.Text, @"/send_message_to_NonActiveUsers((.*\n{0,}){0,})");
+                    if (match_send_message_to_NonActiveUsers.Success)
+                    {
+                        string text = match_send_message_to_NonActiveUsers.Groups[1].Value;
+                        if (text == "")
+                            await botClient.SendTextMessageAsync(message.Chat.Id, "Текст пуст и не отправлен пользователям");
+                        else
+                        {
+                            var count = await botComands.BotSendMessageToUsersInDBAsync(botClient, "nonactive", text, 0);
+                            await botClient.SendTextMessageAsync(message.Chat.Id, $"Текст отправлен {count} пользователям");
+                        }
 
                         return;
                     }
@@ -484,7 +542,7 @@ namespace TelegramBotProject.TelegramBot
 
                         Comp_CountINServer = countUsersServer; // мняю мах кол-во пользователей на сервере 
 
-                        await botClient.SendTextMessageAsync(message.Chat.Id, $"Успех, поменял на {CountINServerIpSec} для Компов");
+                        await botClient.SendTextMessageAsync(message.Chat.Id, $"Успех, поменял на {Comp_CountINServer} для Компов");
                         return;
                     }
 
@@ -612,7 +670,8 @@ namespace TelegramBotProject.TelegramBot
                             {
                                 var SelectedIPsec = IPSecResolver(item);
                                 var total_users = await SelectedIPsec.GetTotalUserAsync();
-                                await botClient.SendTextMessageAsync(message.Chat.Id, $"Количестов активных пользователей: {total_users} на сервере {item}");
+                                await botClient.SendTextMessageAsync(message.Chat.Id, $"Количестов активных пользователей: {total_users} на сервере {item}\n" +
+                                    $"IP: {SelectedIPsec.ServerIPSec}");
                             }
                             catch(Exception exx) 
                             {
@@ -626,7 +685,8 @@ namespace TelegramBotProject.TelegramBot
                             {
                                 var SelectedIPsec = CompIPSecResolver(item);
                                 var total_users = await SelectedIPsec.GetTotalUserAsync();
-                                await botClient.SendTextMessageAsync(message.Chat.Id, $"Количестов активных пользователей: {total_users} на сервере {item}");
+                                await botClient.SendTextMessageAsync(message.Chat.Id, $"Количестов активных пользователей: {total_users} на сервере {item}\n" +
+                                    $"IP: {SelectedIPsec.ServerIPSec}");
                             }
                             catch (Exception exx)
                             {
@@ -936,6 +996,8 @@ namespace TelegramBotProject.TelegramBot
                             await botClient.SendDocumentAsync(
                                         chatId: message.Chat,
                                         document: new InputOnlineFile(content: stream, fileName: $"{filename}"));
+
+                            await botClient.SendTextMessageAsync(message.Chat.Id, $"IP {SelectedServer.ServerSocks}");
                         }
                         
                         return;

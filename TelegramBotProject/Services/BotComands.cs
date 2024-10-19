@@ -489,7 +489,7 @@ namespace TelegramBotProject.Services
         /// </summary>
         /// <param name="typeService"></param>
         /// <returns></returns>
-        public async Task<int> BotSendMessageToUsersInDBAsync(ITelegramBotClient botClient, string typeService, string text)
+        public async Task<int> BotSendMessageToUsersInDBAsync(ITelegramBotClient botClient, string typeService, string text, int numServer)
         {
             List<long> listID = new List<long>();
             int count = 0;
@@ -498,19 +498,19 @@ namespace TelegramBotProject.Services
                 if (typeService == NamesInlineButtons.IPSEC_android)
                 {
                     listID = await db.Users
-                    .Where(u => u.Status == "active" && u.Blatnoi == false && u.NameOS == NamesInlineButtons.Android && EF.Functions.Like(u.NameService, $"{NamesInlineButtons.IPSEC}%"))
+                    .Where(u => u.Status == "active" && u.NameOS == NamesInlineButtons.Android && EF.Functions.Like(u.NameService, $"{NamesInlineButtons.IPSEC}%"))
                     .Select(user => user.ChatID).ToListAsync().ConfigureAwait(false);
                 }
                 if (typeService == NamesInlineButtons.IPSEC_ios)
                 {
                     listID = await db.Users
-                    .Where(u => u.Status == "active" && u.Blatnoi == false && u.NameOS == NamesInlineButtons.IOS && EF.Functions.Like(u.NameService, $"{NamesInlineButtons.IPSEC}%"))
+                    .Where(u => u.Status == "active" && u.NameOS == NamesInlineButtons.IOS && EF.Functions.Like(u.NameService, $"{NamesInlineButtons.IPSEC}%"))
                     .Select(user => user.ChatID).ToListAsync().ConfigureAwait(false);
                 }
                 if (typeService == NamesInlineButtons.Socks)
                 {
                     listID = await db.Users
-                    .Where(u => u.Status == "active" && u.Blatnoi == false && EF.Functions.Like(u.NameService, $"{NamesInlineButtons.Socks}%"))
+                    .Where(u => u.Status == "active" && EF.Functions.Like(u.NameService, $"{NamesInlineButtons.Socks}%"))
                     .Select(user => user.ChatID).ToListAsync().ConfigureAwait(false);
                 }
                 if (typeService == NamesInlineButtons.AllUsers)
@@ -531,6 +531,18 @@ namespace TelegramBotProject.Services
                     .Where(u => u.Status == "nonactive")
                     .Select(user => user.ChatID).ToListAsync().ConfigureAwait(false);
                 }
+                if (typeService == "server_ipsec")
+                {
+                    listID = await db.Users
+                    .Where(u => u.Status == "active" && u.NameService == $"IPSEC_{numServer}")
+                    .Select(user => user.ChatID).ToListAsync().ConfigureAwait(false);
+                }
+                if (typeService == "server_socks")
+                {
+                    listID = await db.Users
+                    .Where(u => u.Status == "active" && u.NameService == $"SOCKS_{numServer}")
+                    .Select(user => user.ChatID).ToListAsync().ConfigureAwait(false);
+                }
             }
 
             List<long> testBlock = new List<long>();
@@ -541,9 +553,10 @@ namespace TelegramBotProject.Services
                     await botClient.SendTextMessageAsync(uID, text);
                     count++;
                 }
-                catch (Exception ex) {
+                catch (Exception ex)
+                {
                     testBlock.Add(uID);
-                    logger.LogInformation("match_send_messahe_to_IPSecUsers {ex}", ex); 
+                    logger.LogInformation("BotSendMessageToUsersInDBAsync {ex}", ex);
                 }
             }
 

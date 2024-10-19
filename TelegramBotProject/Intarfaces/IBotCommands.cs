@@ -14,7 +14,7 @@ namespace TelegramBotProject.Intarfaces
         Task BotAddReferalProgramAsync(ITelegramBotClient botClient, long chatid, long clientID);                                     
         Task BotCheckStatusUserAndSendContinuePayInvoice(ITelegramBotClient botClient, long chatID, string typepayment, int months, string typedevice);
         Task<UserDB> BotCheckUserBDAsync(long chatID, int searchType);       
-        Task<int> BotSendMessageToUsersInDBAsync(ITelegramBotClient botClient, string typeService, string text);
+        Task<int> BotSendMessageToUsersInDBAsync(ITelegramBotClient botClient, string typeService, string text, int numserver);
         Task BotCheckAndUsePromoAsync(ITelegramBotClient botClient, long chatID);
         Task BotTakeOffDBPromoAsync(ITelegramBotClient botClient, long chatID);
         Task BotMarkBlatnoiAsync(ITelegramBotClient botClient, long chatID, long adminID);
