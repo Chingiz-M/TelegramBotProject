@@ -44,7 +44,7 @@ namespace TelegramBotProject.TelegramBot
         static public int Price_1_Month_comp { get; } = 119;
         static public int Price_3_Month_mobile { get; } = 249;
         static public int Price_3_Month_comp { get; } = 299;
-        static public int Comp_CountINServer { get; set; } = 70; // максимум количесвто человек на сервере
+        static public int Comp_CountINServer { get; set; } = 30; // максимум количесвто человек на сервере
         static public int CountINServerIpSec { get; set; } = 70; // максимум количесвто человек на сервере
         static public int CountINServerSocks { get; set; } = 30; // максимум количесвто человек на сервере
         static public string PromocodeName { get; set; } = "testPromo";// промокод для участия в акциях
@@ -302,8 +302,20 @@ namespace TelegramBotProject.TelegramBot
                     }
 
                     #endregion
-//////////////////////////////////////////
+                    //////////////////////////////////////////
                     #region Admin Commands
+
+                    /// <summary>
+                    /// Если сообщение от пользователя /send_message_to. Отправляю сообщение конкретному пользователю для проверки связи 
+                    /// </summary>
+                    if (message.Text.ToLower() == "/bot_current_limit_types")
+                    {
+                        await botClient.SendTextMessageAsync(message.Chat, $"Ограничения:\n" +
+                            $"IPSEC - {CountINServerIpSec}\n" +
+                            $"SOCKS - {CountINServerSocks}" +
+                            $"COMP - {Comp_CountINServer}");
+                        return;
+                    }
 
                     /// <summary>
                     /// Если сообщение от пользователя /send_message_to. Отправляю сообщение конкретному пользователю для проверки связи 
