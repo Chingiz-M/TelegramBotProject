@@ -44,8 +44,8 @@ namespace TelegramBotProject.TelegramBot
         static public int Price_1_Month_comp { get; } = 119;
         static public int Price_3_Month_mobile { get; } = 249;
         static public int Price_3_Month_comp { get; } = 299;
-        static public int Comp_CountINServer { get; set; } = 30; // максимум количесвто человек на сервере
-        static public int CountINServerIpSec { get; set; } = 70; // максимум количесвто человек на сервере
+        static public int Comp_CountINServer { get; set; } = 20; // максимум количесвто человек на сервере
+        static public int CountINServerIpSec { get; set; } = 60; // максимум количесвто человек на сервере
         static public int CountINServerSocks { get; set; } = 30; // максимум количесвто человек на сервере
         static public string PromocodeName { get; set; } = "testPromo";// промокод для участия в акциях
         static public bool PROMOCODE_MODE { get; set; } = false; // переменная для включения и отключения действия промокода
@@ -59,7 +59,7 @@ namespace TelegramBotProject.TelegramBot
         /// <summary>
         /// Список доступных серваков ipsec ПОРЯДОК ВАЖЕН ТАК КАК СОЗДАЮТСЯ NAMECERTAIN В КАЖДОМ КЛАССЕ
         /// </summary>
-        public static readonly string[]  IPSEC_SERVERS_LIST = { "IPSEC_1", "IPSEC_2", "IPSEC_3", "IPSEC_4", "IPSEC_5" };
+        public static readonly string[]  IPSEC_SERVERS_LIST = { "IPSEC_1", "IPSEC_2", "IPSEC_3", "IPSEC_4", "IPSEC_5", "IPSEC_6" };
         /// <summary>
         /// Список доступных серваков socks ПОРЯДОК ВАЖЕН ТАК КАК СОЗДАЮТСЯ NAMECERTAIN В КАЖДОМ КЛАССЕ
         /// </summary>
@@ -312,7 +312,7 @@ namespace TelegramBotProject.TelegramBot
                     {
                         await botClient.SendTextMessageAsync(message.Chat, $"Ограничения:\n" +
                             $"IPSEC - {CountINServerIpSec}\n" +
-                            $"SOCKS - {CountINServerSocks}" +
+                            $"SOCKS - {CountINServerSocks}\n" +
                             $"COMP - {Comp_CountINServer}");
                         return;
                     }
@@ -1000,18 +1000,24 @@ namespace TelegramBotProject.TelegramBot
                     {
                         foreach (var item in SOCKS_SERVERS_LIST)
                         {
-                            var SelectedServer = SocksResolver(item);
-                            string filename = $"users_{item}.csv";
-                            var res = await SelectedServer.GetFileUsersAsync(filename, true);
-                            await using Stream stream = System.IO.File.OpenRead($@"../{filename}");
+                            try
+                            {
+                                var SelectedServer = SocksResolver(item);
+                                string filename = $"users_{item}.csv";
+                                var res = await SelectedServer.GetFileUsersAsync(filename, true);
+                                await using Stream stream = System.IO.File.OpenRead($@"../{filename}");
 
-                            await botClient.SendDocumentAsync(
-                                        chatId: message.Chat,
-                                        document: new InputOnlineFile(content: stream, fileName: $"{filename}"));
+                                await botClient.SendDocumentAsync(
+                                            chatId: message.Chat,
+                                            document: new InputOnlineFile(content: stream, fileName: $"{filename}"));
 
-                            await botClient.SendTextMessageAsync(message.Chat.Id, $"IP {SelectedServer.ServerSocks}");
+                                await botClient.SendTextMessageAsync(message.Chat.Id, $"IP {SelectedServer.ServerSocks}");
+                            }
+                            catch (Exception ex)
+                            {
+                                await botClient.SendTextMessageAsync(message.Chat.Id, $"Не пашет {item}!");
+                            }
                         }
-                        
                         return;
                     }
 

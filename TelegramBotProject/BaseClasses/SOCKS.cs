@@ -37,7 +37,7 @@ namespace TelegramBotProject.BaseClasses
         public async Task<long> CreateUserAsync(ITelegramBotClient botClient, long chatid)
         {
             long id_client = -1;
-            string key_client = null;
+             string key_client = null;
 
             try
             {
