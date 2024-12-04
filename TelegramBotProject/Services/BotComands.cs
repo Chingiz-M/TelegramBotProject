@@ -23,14 +23,17 @@ namespace TelegramBotProject.Services
         private ILogger logger;
         private readonly IPSecServiceResolver ipsecResolver;
         private readonly SOCKSServiceResolver socksResolver;
+        private readonly Comp_IPSecServiceResolver comp_ipsecResolver;
+
         //private readonly IIPsec1 ipsecServer;
         //private readonly ISocks1 socksServer;
 
-        public BotComands(ILogger<BotComands> logger, IPSecServiceResolver ipsecResolver, SOCKSServiceResolver socksResolver)
+        public BotComands(ILogger<BotComands> logger, IPSecServiceResolver ipsecResolver, SOCKSServiceResolver socksResolver, Comp_IPSecServiceResolver comp_ipsecResolver)
         {
             this.logger = logger;
             this.ipsecResolver = ipsecResolver;
             this.socksResolver = socksResolver;
+            this.comp_ipsecResolver = comp_ipsecResolver;
             //ipsecServer = ipsecResolver(TgBotHostedService.IPSEС_SELECTED_SERVER); 
             //socksServer = socksResolver(TgBotHostedService.SOCKS_SELECTED_SERVER);
         }
@@ -441,7 +444,7 @@ namespace TelegramBotProject.Services
         }
 
         /// <summary>
-        /// Метод проверки и использования промокода пользователем
+        /// Метод добавления дней к активной подписке определенному пользователю
         /// </summary>
         /// <param name="botClient"></param>
         /// <param name="chatID"></param>
@@ -564,5 +567,136 @@ namespace TelegramBotProject.Services
 
         }
 
+        /// <summary>
+        /// Специфичный метод бесплатного продления пользователей в ближайшие дни (упал прием оплаты картами)
+        /// </summary>
+        /// <param name="botClient"></param>
+        /// <param name="diapason"> диапазон ближайших дат для выбора начиная от сегодняшней</param>
+        /// <param name="dayslong"> кол-во дней на которые продлить подписки пользователей в диапазоне дат</param>
+        /// <param name="adminID"></param>
+        /// <returns></returns>
+        public async Task BotShiftNearestUsersDateAsync(ITelegramBotClient botClient, int diapason, int dayslong, long adminID)
+        {
+            using (TgVpnbotContext db = new TgVpnbotContext())
+            {
+                var users_payment = await db.Users.Where(u => u.DateNextPayment.Date < DateTime.Now.AddDays(diapason).Date && u.Status == "active" && u.Blatnoi == false).ToListAsync().ConfigureAwait(false);
+
+                int count = 0;
+                foreach (var user in users_payment) // здесь все по датам включая chatid для компа и для телефонов
+                {
+                    try
+                    {
+                        user.DateNextPayment = user.DateNextPayment.AddDays(dayslong);
+                        await db.SaveChangesAsync();
+                        count++;
+                        
+                    }
+                    catch (Exception ex) {  }
+                }
+                await botClient.SendTextMessageAsync(1278048494, $"Продлил {count} ({users_payment.Count}) пользователей в диапазоне {diapason} дней на {dayslong} дней");
+                await botClient.SendTextMessageAsync(adminID, $"Продлил {count} ({users_payment.Count}) пользователей в диапазоне {diapason} дней на {dayslong} дней");
+            }
+        }
+
+        /// <summary>
+        /// Метод получения общего кол-ва пользователей в БД и по факту на серваках
+        /// </summary>
+        /// <param name="botClient"></param>
+        /// <param name="adminID"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task BotGetAllCountUsersAsync(ITelegramBotClient botClient, long adminID)
+        {
+            using (TgVpnbotContext db = new TgVpnbotContext())
+            {
+                // подсчет пользователей в бд
+                var users_all_active_db = await db.Users.CountAsync(u => u.Status == "active").ConfigureAwait(false);
+                var users_all_non = await db.Users.CountAsync(u => u.Status == "nonactive").ConfigureAwait(false);
+                var users_blatnoi = await db.Users.CountAsync(u => u.Status == "active" && u.Blatnoi == true).ConfigureAwait(false);
+
+                var users_ipsec_db = await db.Users.CountAsync(u => u.Status == "active" && u.Blatnoi == false && EF.Functions.Like(u.NameService, "%ipsec%")).ConfigureAwait(false);
+
+                var users_ipsec_mob = await db.Users.
+                    CountAsync(u => u.Status == "active" && u.Blatnoi == false && EF.Functions.Like(u.NameService, "ipsec%") 
+                    && EF.Functions.Like(u.TypeOfDevice, "mobile%")).ConfigureAwait(false);
+
+                var users_ipsec_mob_ios = await db.Users.
+                    CountAsync(u => u.Status == "active" && u.Blatnoi == false && EF.Functions.Like(u.NameService, "ipsec%") 
+                    && EF.Functions.Like(u.TypeOfDevice, "mobile%") && u.NameOS == "ios").ConfigureAwait(false);
+
+                var users_ipsec_mob_android = await db.Users.
+                    CountAsync(u => u.Status == "active" && u.Blatnoi == false && EF.Functions.Like(u.NameService, "ipsec%") 
+                    && EF.Functions.Like(u.TypeOfDevice, "mobile%") && u.NameOS == "android").ConfigureAwait(false);
+
+                var users_ipsec_comp = await db.Users.
+                    CountAsync(u => u.Status == "active" && u.Blatnoi == false && EF.Functions.Like(u.NameService, "comp%") 
+                    && EF.Functions.Like(u.TypeOfDevice, "comp%")).ConfigureAwait(false);
+
+                var users_ipsec_comp_win = await db.Users.
+                    CountAsync(u => u.Status == "active" && u.Blatnoi == false && EF.Functions.Like(u.NameService, "comp%") 
+                    && EF.Functions.Like(u.TypeOfDevice, "comp%") && u.NameOS == "Windows").ConfigureAwait(false);
+
+                var users_ipsec_comp_mac = await db.Users.
+                    CountAsync(u => u.Status == "active" && u.Blatnoi == false && EF.Functions.Like(u.NameService, "comp%") 
+                    && EF.Functions.Like(u.TypeOfDevice, "comp%") && u.NameOS == "MacOS").ConfigureAwait(false);
+
+                var users_socks = await db.Users.CountAsync(u => u.Status == "active" && u.Blatnoi == false && EF.Functions.Like(u.NameService, "socks%")).ConfigureAwait(false);
+                var users_socks_ios = await db.Users.
+                   CountAsync(u => u.Status == "active" && u.Blatnoi == false && EF.Functions.Like(u.NameService, "socks%") && u.NameOS == "ios").ConfigureAwait(false);
+
+                var users_socks_aandroid = await db.Users.
+                   CountAsync(u => u.Status == "active" && u.Blatnoi == false && EF.Functions.Like(u.NameService, "socks%") && u.NameOS == "android").ConfigureAwait(false);
+
+                await botClient.SendTextMessageAsync(adminID, $"Данные с БД\n\n" +
+                    $"Всего активных в БД: {users_all_active_db}\n" +
+                    $"Всего неактивных в БД: {users_all_non}\n" +
+                    $"Всего блатных в БД: {users_blatnoi}\n\n" +
+                    $"Всего IPSEC (мобилы и компы) в БД: {users_ipsec_db}\n" +
+                    $"IPSEC мобилы в БД: {users_ipsec_mob}\n" +
+                    $" -IPSEC мобилы ios в БД: {users_ipsec_mob_ios}\n" +
+                    $" -IPSEC мобилы android в БД: {users_ipsec_mob_android}\n" +
+                    $"IPSEC комп в БД: {users_ipsec_comp}\n" +
+                    $" -IPSEC комп Windows в БД: {users_ipsec_comp_win}\n" +
+                    $" -IPSEC комп MacOS в БД: {users_ipsec_comp_mac}\n\n" +
+                    $"Всего Socks в БД: {users_socks}\n" +
+                    $" -Socks ios в БД: {users_socks_ios}\n" +
+                    $" -Socks android в БД: {users_socks_aandroid}\n\n");
+
+            }
+
+            // подсчет фактических конфигов на серваках
+            int users_all_servers = 0;
+            int users_all_ipsec_mob_servers = 0;
+            foreach (var item in TgBotHostedService.IPSEC_SERVERS_LIST)
+            {
+                var temp_server = ipsecResolver(item);
+                var count_users = await temp_server.GetTotalUserAsync();
+                users_all_ipsec_mob_servers += count_users;
+            }
+
+            int users_all_ipsec_comp_servers = 0;
+            foreach (var item in TgBotHostedService.Comp_IPSEC_SERVERS_LIST)
+            {
+                var temp_server = comp_ipsecResolver(item);
+                var count_users = await temp_server.GetTotalUserAsync();
+                users_all_ipsec_comp_servers += count_users;
+            }
+
+            int users_all_socks_servers = 0;
+            foreach (var item in TgBotHostedService.SOCKS_SERVERS_LIST)
+            {
+                var temp_server = socksResolver(item);
+                var count_users = await temp_server.GetFileUsersAsync("test", false);
+                users_all_socks_servers += count_users;
+            }
+
+            users_all_servers = users_all_ipsec_mob_servers + users_all_ipsec_comp_servers + users_all_socks_servers;
+
+            await botClient.SendTextMessageAsync(adminID, $"Фактические данные с серверов\n\n" +
+                $"Всего Socks и IPSEC (моб и комп): {users_all_servers}\n" +
+                $"Всего IPSEC мобилы: {users_all_ipsec_mob_servers}\n" +
+                $"Всего IPSEC комп: {users_all_ipsec_comp_servers}\n" +
+                $"Всего Socks в БД: {users_all_socks_servers}\n");
+        }
     }
 }

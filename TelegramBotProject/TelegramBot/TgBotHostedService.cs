@@ -59,7 +59,7 @@ namespace TelegramBotProject.TelegramBot
         /// <summary>
         /// Список доступных серваков ipsec ПОРЯДОК ВАЖЕН ТАК КАК СОЗДАЮТСЯ NAMECERTAIN В КАЖДОМ КЛАССЕ
         /// </summary>
-        public static readonly string[]  IPSEC_SERVERS_LIST = { "IPSEC_1", "IPSEC_2", "IPSEC_3", "IPSEC_4", "IPSEC_5", "IPSEC_6" };
+        public static readonly string[]  IPSEC_SERVERS_LIST = { "IPSEC_1", "IPSEC_2", "IPSEC_3", "IPSEC_4", "IPSEC_5", "IPSEC_6", "IPSEC_7" };
         /// <summary>
         /// Список доступных серваков socks ПОРЯДОК ВАЖЕН ТАК КАК СОЗДАЮТСЯ NAMECERTAIN В КАЖДОМ КЛАССЕ
         /// </summary>
@@ -664,6 +664,27 @@ namespace TelegramBotProject.TelegramBot
                         long.TryParse(match_add_days.Groups[1].Value, out long clientID);
                         int.TryParse(match_add_days.Groups[2].Value, out int days);
                         await botComands.BotAddDaysToUserAsync(botClient, clientID, days, message.Chat.Id);
+                        return;
+                    }
+
+                    /// <summary>
+                    /// Если сообщение от пользователя /bot_add_days_user. Добавляю пользователю дни
+                    /// </summary>
+                    var match_shift_dates = Regex.Match(message.Text.ToLower(), @"/bot_shift_dates_users diapason (\d+) days (\d+)");
+                    if (match_shift_dates.Success)
+                    {
+                        int.TryParse(match_shift_dates.Groups[1].Value, out int diapason);
+                        int.TryParse(match_shift_dates.Groups[2].Value, out int days);
+                        await botComands.BotShiftNearestUsersDateAsync(botClient, diapason, days, message.Chat.Id);
+                        return;
+                    }
+
+                    /// <summary>
+                    /// Если сообщение от пользователя /bot_add_days_user. Добавляю пользователю дни
+                    /// </summary>
+                    if (message.Text.ToLower() == "/bot_get_total_counts_users")
+                    {
+                        await botComands.BotGetAllCountUsersAsync(botClient, message.Chat.Id);
                         return;
                     }
                     #endregion
