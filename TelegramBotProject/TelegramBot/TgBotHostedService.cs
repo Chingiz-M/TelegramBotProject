@@ -44,7 +44,7 @@ namespace TelegramBotProject.TelegramBot
         static public int Price_1_Month_comp { get; } = 119;
         static public int Price_3_Month_mobile { get; } = 249;
         static public int Price_3_Month_comp { get; } = 299;
-        static public int Comp_CountINServer { get; set; } = 20; // максимум количесвто человек на сервере
+        static public int Comp_CountINServer { get; set; } = 30; // максимум количесвто человек на сервере
         static public int CountINServerIpSec { get; set; } = 60; // максимум количесвто человек на сервере
         static public int CountINServerSocks { get; set; } = 30; // максимум количесвто человек на сервере
         static public string PromocodeName { get; set; } = "testPromo";// промокод для участия в акциях
@@ -59,7 +59,7 @@ namespace TelegramBotProject.TelegramBot
         /// <summary>
         /// Список доступных серваков ipsec ПОРЯДОК ВАЖЕН ТАК КАК СОЗДАЮТСЯ NAMECERTAIN В КАЖДОМ КЛАССЕ
         /// </summary>
-        public static readonly string[]  IPSEC_SERVERS_LIST = { "IPSEC_1", "IPSEC_2", "IPSEC_3", "IPSEC_4", "IPSEC_5", "IPSEC_6", "IPSEC_7" };
+        public static readonly string[]  IPSEC_SERVERS_LIST = { "IPSEC_1", "IPSEC_2", "IPSEC_3", "IPSEC_4", "IPSEC_5", "IPSEC_6", "IPSEC_7", "IPSEC_8" };
         /// <summary>
         /// Список доступных серваков socks ПОРЯДОК ВАЖЕН ТАК КАК СОЗДАЮТСЯ NAMECERTAIN В КАЖДОМ КЛАССЕ
         /// </summary>
