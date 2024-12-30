@@ -63,7 +63,7 @@ namespace TelegramBotProject.TelegramBot
         /// <summary>
         /// Список доступных серваков socks ПОРЯДОК ВАЖЕН ТАК КАК СОЗДАЮТСЯ NAMECERTAIN В КАЖДОМ КЛАССЕ
         /// </summary>
-        public static readonly string[] SOCKS_SERVERS_LIST = { "SOCKS_1", "SOCKS_2", "SOCKS_3", "SOCKS_4" };
+        public static readonly string[] SOCKS_SERVERS_LIST = { "SOCKS_1", "SOCKS_2", "SOCKS_3", "SOCKS_4", "SOCKS_5" };
 
         // Перечисления для определения типа подключения бесплатный или платный
         public enum TypeConnect { Free, Payment};
@@ -98,7 +98,10 @@ namespace TelegramBotProject.TelegramBot
                                 return;
                             }
                         if (message.Chat.Id > 0)
-                            await botClient.SendTextMessageAsync(message.Chat, "Бот временно недоступен 😵\n Уже работаем над починкой 🛠");
+                        {
+                            //await botClient.SendTextMessageAsync(message.Chat, "Бот временно недоступен 😵\n Уже работаем над починкой 🛠");
+
+                        }
                     }
                     if (button != null && button.Message.Chat.Id > 0)
                         await botClient.SendTextMessageAsync(button.Message.Chat.Id, "Бот временно недоступен 😵.\n Уже работаем над починкой 🛠");

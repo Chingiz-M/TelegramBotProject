@@ -73,7 +73,7 @@ namespace TelegramBotProject.Services
         /// <returns></returns>
         public async Task<string> Mobile_BotIPsecConfigBalanserAsync()
         {
-            foreach (var item in TgBotHostedService.IPSEC_SERVERS_LIST)
+            foreach (var item in TgBotHostedService.IPSEC_SERVERS_LIST.Reverse())
             {
                 var temp_server = ipsecResolver(item);
                 var count_users = await temp_server.GetTotalUserAsync();
@@ -505,8 +505,8 @@ namespace TelegramBotProject.Services
                 var mes = await botClient.SendVideoAsync(
                 chatId: chatID,
                 video: "BAACAgIAAxkDAANyZWiG0AABrL2md4eb79UH7ZcR9hAwAAIVOgACJQVBS_cx0M0jD2nHMwQ"); // fileid video NamelessNetwork
-            //video: "BAACAgIAAxkDAAIEuWVk4XVhHJietr3md_CsBlqB7qkfAAKSRgACFFsoS-6Q2XM11qLpMwQ"); // fileid video TestNamelessVPN
-                    //video: new InputOnlineFile(content: stream, fileName: $"Тестовая инструкция"));
+                //video: "BAACAgIAAxkDAAIEuWVk4XVhHJietr3md_CsBlqB7qkfAAKSRgACFFsoS-6Q2XM11qLpMwQ"); // fileid video TestNamelessVPN
+                //video: new InputOnlineFile(content: stream, fileName: $"Тестовая инструкция"));
             }
             else // android
             {

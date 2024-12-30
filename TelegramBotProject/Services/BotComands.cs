@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using Telegram.Bot;
 using Telegram.Bot.Types.InputFiles;
@@ -149,7 +150,10 @@ namespace TelegramBotProject.Services
                     break;
             }
 
-            var data = JsonConvert.SerializeObject(new { capture = true });
+            string jsonString = @"{""receipt"":{""customer"":{""email"":""mishaorlovorloff@yandex.ru""},""items"":[{""description"":""Оплата подписки 84722"",""quantity"":1.000,""amount"":{""value"":";
+            jsonString += String.Format(@"""{0}"",", price.ToString("F2", CultureInfo.InvariantCulture));
+            jsonString += @"""currency"":""RUB""},""vat_code"":1,""payment_mode"":""full_prepayment"",""payment_subject"":""commodity""}]}}";
+
             var list = new List<Telegram.Bot.Types.Payments.LabeledPrice>();
             list.Add(new Telegram.Bot.Types.Payments.LabeledPrice(information_massage, price * 100));
             await botClient.SendInvoiceAsync(
@@ -161,7 +165,11 @@ namespace TelegramBotProject.Services
                 "RUB",
                 list,
                 startParameter: "test",
-                providerData: data);
+                needName: false,
+                needPhoneNumber: false,
+                needEmail: false,
+                isFlexible: false,
+                providerData: jsonString);
 
             logger.LogInformation("Метод BotSendInvoiceAsync, посылаю инвойс, chatid: {chatid}, тип: {os}, подписка на месяцев {months}", chatid, typepayment, months);
         }
