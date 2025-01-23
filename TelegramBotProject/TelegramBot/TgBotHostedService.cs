@@ -59,7 +59,7 @@ namespace TelegramBotProject.TelegramBot
         /// <summary>
         /// Список доступных серваков ipsec ПОРЯДОК ВАЖЕН ТАК КАК СОЗДАЮТСЯ NAMECERTAIN В КАЖДОМ КЛАССЕ
         /// </summary>
-        public static readonly string[]  IPSEC_SERVERS_LIST = { "IPSEC_1", "IPSEC_2", "IPSEC_3", "IPSEC_4", "IPSEC_5", "IPSEC_6", "IPSEC_7", "IPSEC_8" };
+        public static readonly string[]  IPSEC_SERVERS_LIST = { "IPSEC_1", "IPSEC_2", "IPSEC_3", "IPSEC_4", "IPSEC_5", "IPSEC_6", "IPSEC_7", "IPSEC_8", "IPSEC_9" };
         /// <summary>
         /// Список доступных серваков socks ПОРЯДОК ВАЖЕН ТАК КАК СОЗДАЮТСЯ NAMECERTAIN В КАЖДОМ КЛАССЕ
         /// </summary>
@@ -1075,6 +1075,8 @@ namespace TelegramBotProject.TelegramBot
 
                     await botClient.SendTextMessageAsync(message.Chat, "Выберите /start в меню для начала работы с ботом или обратитесь в поддержку /support");
                 }
+
+
 
                 /// <summary>
                 /// Если апдейт от пользователя представляет информацию о предварительной оплате подписки
