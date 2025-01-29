@@ -14,6 +14,7 @@ using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
+using Telegram.Bot.Types.ReplyMarkups;
 using TelegramBotProject.DB;
 using TelegramBotProject.Entities;
 using TelegramBotProject.Intarfaces;
@@ -45,10 +46,10 @@ namespace TelegramBotProject.TelegramBot
         static public int Price_3_Month_mobile { get; } = 249;
         static public int Price_3_Month_comp { get; } = 299;
         static public int Comp_CountINServer { get; set; } = 30; // максимум количесвто человек на сервере
-        static public int CountINServerIpSec { get; set; } = 60; // максимум количесвто человек на сервере
+        static public int CountINServerIpSec { get; set; } = 65; // максимум количесвто человек на сервере
         static public int CountINServerSocks { get; set; } = 30; // максимум количесвто человек на сервере
         static public string PromocodeName { get; set; } = "testPromo";// промокод для участия в акциях
-        static public bool PROMOCODE_MODE { get; set; } = false; // переменная для включения и отключения действия промокода
+        static public bool PROMOCODE_MODE { get; set; } = true; // переменная для включения и отключения действия промокода
         static public int USERS_COMP { get; set; } = 1000; // число на которое умножается chaid пользователя для получения id для компа для этого пользователя
 
 
@@ -266,8 +267,7 @@ namespace TelegramBotProject.TelegramBot
                     if (message.Text.ToLower() == "/about_promo")
                     {
                         await botClient.SendTextMessageAsync(message.Chat.Id, $"Привет, здесь написано как использовать промокод! 🎟\n\n" +
-                            $"Отправь боту сообщение вида:\n" +
-                            $"\"/switch_on_promo PROMO\", где PROMO - название промокода.");
+                            $"Отправь боту свой промокод и следуй дальнейшим инструкциям 🏆");
                         return;
                     }
 
@@ -275,31 +275,30 @@ namespace TelegramBotProject.TelegramBot
                     /// <summary>
                     /// Если сообщение от пользователя /switch_on_promo. Пользователь использует промокод
                     /// </summary>
-                    var match_use_promocode = Regex.Match(message.Text.ToLower(), @"/switch_on_promo (\S+)");
-                    if (match_use_promocode.Success)
+                    if (message.Text.ToLower() == PromocodeName.ToLower()) // если промокоды совпадают
                     {
                         if (PROMOCODE_MODE) // если режим промокода включен
                         {
-                            var usr = await botComands.BotCheckUserBDAsync(message.Chat.Id, 1);  // активный ли 
-
-                            if (usr != null) // пользователь есть в бд и активный
+                            var replyMarkup = new InlineKeyboardMarkup(new[]
                             {
-                                string promo_user = match_use_promocode.Groups[1].Value;
-
-                                if(PromocodeName.ToLower() == promo_user.ToLower()) // если промокоды совпадают
+                                new[]
                                 {
-                                    await botComands.BotCheckAndUsePromoAsync(botClient, message.Chat.Id);
+                                    InlineKeyboardButton.WithUrl("Инженерообязанный", "https://t.me/halltape_data"),
+                                },
+                                new[]
+                                {
+                                    InlineKeyboardButton.WithUrl("Я – Дата Инженер", "https://t.me/Shust_DE")
+                                },
+                                new[]
+                                {
+                                    InlineKeyboardButton.WithCallbackData("Активировать промокод", "promocode_on")
                                 }
-                                else
-                                    await botClient.SendTextMessageAsync(message.Chat.Id, "Промокод не верный, попробуйте снова.");
-
-                            }
-                            else
-                                await botClient.SendTextMessageAsync(message.Chat.Id, "Для того чтобы применить промокод необходимо быть активным пользователем.\n\n" +
-                                    "Выберите /start в меню для начала работы с ботом 👍");
+                            });
+                            var messagepromo = await botClient.SendTextMessageAsync(message.Chat.Id, "❗ Чтобы использовать промокод необходимо *подписаться* ✅ на оба канала, а также быть активным пользователем нашего сервиса.",
+                                replyMarkup: replyMarkup, parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown);
                         }
                         else
-                            await botClient.SendTextMessageAsync(message.Chat.Id, "На данный момент нет активных промокодов 😢");                        
+                            await botClient.SendTextMessageAsync(message.Chat.Id, $"Этот промокод устарел 😢");
 
                         return;
                     }
@@ -1076,8 +1075,6 @@ namespace TelegramBotProject.TelegramBot
                     await botClient.SendTextMessageAsync(message.Chat, "Выберите /start в меню для начала работы с ботом или обратитесь в поддержку /support");
                 }
 
-
-
                 /// <summary>
                 /// Если апдейт от пользователя представляет информацию о предварительной оплате подписки
                 /// </summary>
@@ -1110,6 +1107,36 @@ namespace TelegramBotProject.TelegramBot
                     var comp_chatId = real_chatId * TgBotHostedService.USERS_COMP;
 
                     Log.Information("Нажата кнопка {inlineButton} пользователь: {firstName}, chatid: {chatid}", button.Data, button.Message.Chat?.FirstName, real_chatId);
+
+                    if (button.Data == "promocode_on")
+                    {
+                        var usr_promo = await botComands.BotCheckUserBDAsync(real_chatId, 1);  // активный ли 
+
+                        if (usr_promo != null) // пользователь есть в бд и активный
+                        {
+                            var isMember1 = await IsUserMemberOfChannel(botClient, real_chatId, -1002028974001);
+                            var isMember2 = await IsUserMemberOfChannel(botClient, real_chatId, -1001525634239);
+
+                            if (isMember1 && isMember2)
+                            {
+                                await botClient.DeleteMessageAsync(real_chatId, button.Message.MessageId);
+                                await botClient.SendTextMessageAsync(real_chatId, "Спасибо, что подписаны на каналы! 🏆");
+                                await botComands.BotCheckAndUsePromoAsync(botClient, real_chatId);
+                            }
+                            else
+                            {
+                                var rejectpromo = await botClient.SendTextMessageAsync(real_chatId,
+                                        "*Вы не подписаны* на один или оба канала 😢.\n" +
+                                        "Пожалуйста, подпишитесь ✅ и нажмите кнопку *Активировать промокод*",
+                                        parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown);
+                            }
+                        }
+                        else
+                            await botClient.SendTextMessageAsync(real_chatId, "Для того чтобы применить промокод необходимо быть активным пользователем.\n\n" +
+                                "Выберите /start в меню для начала работы с ботом 👍");
+
+                        return;
+                    }
 
                     // SELECT PERIOD CONTINUE_PAYMENT Mobile 1 month
                     if (button.Data == NamesInlineButtons.ContinuePayment_Mobile_1_month)
@@ -1428,6 +1455,8 @@ namespace TelegramBotProject.TelegramBot
                         }
                     }
 
+                    
+
                     await botClient.SendTextMessageAsync(real_chatId, "Эта кнопка устарела! 😢\n" +
                         "Выберите /start в меню для начала работы с ботом");
 
@@ -1454,6 +1483,22 @@ namespace TelegramBotProject.TelegramBot
             Log.Information("Ошибка в HandleErrorAsync {ex}", ErrorMessage);
 
             return Task.CompletedTask;
+        }
+
+        private static async Task<bool> IsUserMemberOfChannel(ITelegramBotClient botClient, long userId, long channelID)
+        {
+            try
+            {
+                var chatMember = await botClient.GetChatMemberAsync(channelID, userId);
+                return chatMember.Status == Telegram.Bot.Types.Enums.ChatMemberStatus.Member ||
+                       chatMember.Status == Telegram.Bot.Types.Enums.ChatMemberStatus.Administrator ||
+                       chatMember.Status == Telegram.Bot.Types.Enums.ChatMemberStatus.Creator;
+            }
+            catch (Exception ex)
+            {
+                Log.Information($"Ошибка при проверке подписки: {ex.Message}");
+                return false;
+            }
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)

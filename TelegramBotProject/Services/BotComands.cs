@@ -386,11 +386,13 @@ namespace TelegramBotProject.Services
                     else
                     {
                         user.UsePromocode = true;
-                        user.DateNextPayment = user.DateNextPayment.AddMonths(1); // добавляю месяц за введенный промокод
+                        user.DateNextPayment = user.DateNextPayment.AddDays(14); // добавляю месяц за введенный промокод
                         await db.SaveChangesAsync();
 
                         await botClient.SendTextMessageAsync(chatID, $"Поздравляю! 🎉\nПромокод успешно применен! \n\n" +
                             $"Подписка активна до {user.DateNextPayment.ToString("dd-MM-yyyy")} г. включительно 🤝\n");
+
+                        await botClient.SendTextMessageAsync(1278048494, $"Применен промокод пользователь {chatID}");
 
                     }
                 }
