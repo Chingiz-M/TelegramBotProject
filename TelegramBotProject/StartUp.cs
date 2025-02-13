@@ -61,6 +61,7 @@ namespace TelegramBotProject
                   services.AddTransient<Socks_3>();
                   services.AddTransient<Socks_4>();
                   services.AddTransient<Socks_5>();
+                  services.AddTransient<Socks_6>();
 
                   services.AddTransient<SOCKSServiceResolver>(serviceProvider => key =>
                   {
@@ -78,6 +79,8 @@ namespace TelegramBotProject
                               return serviceProvider.GetService<Socks_4>();
                           case "SOCKS_5":
                               return serviceProvider.GetService<Socks_5>();
+                          case "SOCKS_6":
+                              return serviceProvider.GetService<Socks_6>();
                           default:
                               throw new KeyNotFoundException(); // or maybe return null, up to you
                       }

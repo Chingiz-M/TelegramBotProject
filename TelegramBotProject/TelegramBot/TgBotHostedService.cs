@@ -64,7 +64,7 @@ namespace TelegramBotProject.TelegramBot
         /// <summary>
         /// Список доступных серваков socks ПОРЯДОК ВАЖЕН ТАК КАК СОЗДАЮТСЯ NAMECERTAIN В КАЖДОМ КЛАССЕ
         /// </summary>
-        public static readonly string[] SOCKS_SERVERS_LIST = { "SOCKS_1", "SOCKS_2", "SOCKS_3", "SOCKS_4", "SOCKS_5" };
+        public static readonly string[] SOCKS_SERVERS_LIST = { "SOCKS_1", "SOCKS_2", "SOCKS_3", "SOCKS_4", "SOCKS_5", "SOCKS_6" };
 
         // Перечисления для определения типа подключения бесплатный или платный
         public enum TypeConnect { Free, Payment};
