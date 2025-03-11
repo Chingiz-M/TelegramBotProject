@@ -87,5 +87,6 @@
 
         #endregion
 
+        static public string StartRouter { get; } = "Router";  // переменная для выбора конфига для роутера
     }
 }

@@ -93,7 +93,7 @@ namespace TelegramBotProject.Services
         {
             foreach (var item in TgBotHostedService.SOCKS_SERVERS_LIST)
             {
-                if(item != "SOCKS_3")
+                if(item != "SOCKS_1")
                 {
                     var temp_server = socksResolver(item);
                     var count_users = await temp_server.GetFileUsersAsync("test", false);
@@ -102,7 +102,7 @@ namespace TelegramBotProject.Services
                 }
             }
 
-            return TgBotHostedService.SOCKS_SERVERS_LIST[0];
+            return TgBotHostedService.SOCKS_SERVERS_LIST[1];
         }
 
         /// <summary>

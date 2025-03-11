@@ -46,9 +46,9 @@ namespace TelegramBotProject.TelegramBot
         static public int Price_3_Month_mobile { get; } = 249;
         static public int Price_3_Month_comp { get; } = 299;
         static public int Comp_CountINServer { get; set; } = 45; // максимум количесвто человек на сервере
-        static public int CountINServerIpSec { get; set; } = 60; // максимум количесвто человек на сервере
+        static public int CountINServerIpSec { get; set; } = 66; // максимум количесвто человек на сервере
         static public int CountINServerSocks { get; set; } = 25; // максимум количесвто человек на сервере
-        static public string PromocodeName { get; set; } = "testPromo";// промокод для участия в акциях
+        static public string PromocodeName { get; set; } = "DE";// промокод для участия в акциях
         static public bool PROMOCODE_MODE { get; set; } = true; // переменная для включения и отключения действия промокода
         static public int USERS_COMP { get; set; } = 1000; // число на которое умножается chaid пользователя для получения id для компа для этого пользователя
 
@@ -671,6 +671,18 @@ namespace TelegramBotProject.TelegramBot
                     }
 
                     /// <summary>
+                    /// Если сообщение от пользователя /bot_remove_days_user. Удаляю пользователю дни
+                    /// </summary>
+                    var match_remove_days = Regex.Match(message.Text.ToLower(), @"/bot_remove_days_user (\d+) days (\d+)");
+                    if (match_remove_days.Success)
+                    {
+                        long.TryParse(match_remove_days.Groups[1].Value, out long clientID);
+                        int.TryParse(match_remove_days.Groups[2].Value, out int days);
+                        await botComands.BotRemoveDaysToUserAsync(botClient, clientID, days, message.Chat.Id);
+                        return;
+                    }
+
+                    /// <summary>
                     /// Если сообщение от пользователя /bot_add_days_user. Добавляю пользователю дни
                     /// </summary>
                     var match_shift_dates = Regex.Match(message.Text.ToLower(), @"/bot_shift_dates_users diapason (\d+) days (\d+)");
@@ -1108,6 +1120,20 @@ namespace TelegramBotProject.TelegramBot
                     var comp_chatId = real_chatId * TgBotHostedService.USERS_COMP;
 
                     Log.Information("Нажата кнопка {inlineButton} пользователь: {firstName}, chatid: {chatid}", button.Data, button.Message.Chat?.FirstName, real_chatId);
+
+                    if (button.Data == NamesInlineButtons.StartRouter)
+                    {
+                        await botClient.SendTextMessageAsync(real_chatId,
+                            $"Откройте для себя мир без границ с нашими роутерами с встроенным VPN! 🚀\n\n" +
+                            $"1. Неограниченный доступ к контенту : С нашими роутерами вы сможете наслаждаться любимыми видео на 🔴 YouTube" +
+                            $" прямо на телевизоре, а также просматривать контент 📱 в Instagram, TikTok, Twitter и других социальных сетях без каких-либо ограничений." +
+                            $" Забудьте о блокировках и географических ограничениях!\n\n" +
+                            $"2. Удобный бот для управления VPN 🤖: Мы предлагаем вам инновационное решение — удобного бота, который позволяет включать и отключать VPN всего одной командой.\n\n" +
+                            $"3. Простота подключения 🔌: Настройка роутера не займет у вас много времени. Просто вставьте шнур, и устройство начнет работать.\n\n" +
+                            $"4. Безопасность и конфиденциальность 🔒: Встроенный VPN обеспечивает высокий уровень безопасности ваших данных, защищая вашу личную информацию от посторонних глаз.\n\n" +
+                            $"За подробной информацией и заказом роутера пишите 🖊 в саппорт @NamelessVPN_support");
+                        return;
+                    }
 
                     if (button.Data == "promocode_on")
                     {

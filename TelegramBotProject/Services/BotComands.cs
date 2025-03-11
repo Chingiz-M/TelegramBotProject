@@ -62,14 +62,23 @@ namespace TelegramBotProject.Services
                         $"Для мобильных устройств действует реферальная система:\n" +
                         $"пригласите 3 друзей с активной подпиской и получите 3 месяца бесплатно.";
 
-            var button1 = InlineKeyboardButton.WithCallbackData("Мобильное устройство 📱", NamesInlineButtons.StartMobile);
-            var button2 = InlineKeyboardButton.WithCallbackData("Персональный компьютер 🖥️", NamesInlineButtons.StartComp);
+            var replyMarkup = new InlineKeyboardMarkup(new[]
+                {
+                    new[]
+                    {
+                        InlineKeyboardButton.WithCallbackData("Мобильное устройство 📱", NamesInlineButtons.StartMobile),
+                    },
+                    new[]
+                    {
+                        InlineKeyboardButton.WithCallbackData("Персональный компьютер 🖥️", NamesInlineButtons.StartComp)
+                    },
+                    new[]
+                    {
+                        InlineKeyboardButton.WithCallbackData("Роутеры с встроенным VPN 🌐", NamesInlineButtons.StartRouter)
+                    }
+                });
 
-
-            var row1 = new InlineKeyboardButton[] { button1, button2 };
-            var keyboard = new Telegram.Bot.Types.ReplyMarkups.InlineKeyboardMarkup(row1);
-
-            await botClient.SendTextMessageAsync(chatid, startText, replyMarkup: keyboard);
+            await botClient.SendTextMessageAsync(chatid, startText, replyMarkup: replyMarkup);
         }
 
         /// <summary>
@@ -478,6 +487,30 @@ namespace TelegramBotProject.Services
         }
 
         /// <summary>
+        /// Метод удаления дней к активной подписке определенному пользователю
+        /// </summary>
+        /// <param name="botClient"></param>
+        /// <param name="chatID"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task BotRemoveDaysToUserAsync(ITelegramBotClient botClient, long chatID, int days, long adminID)
+        {
+            using (TgVpnbotContext db = new TgVpnbotContext())
+            {
+                var user = await db.Users.FirstOrDefaultAsync(u => u.ChatID == chatID).ConfigureAwait(false);
+
+                if (user != null)
+                {
+                    user.DateNextPayment = user.DateNextPayment.AddDays(days);
+                    await db.SaveChangesAsync();
+
+                    await botClient.SendTextMessageAsync(1278048494, $"Добавил пользователю {chatID} {days} дней");
+                    await botClient.SendTextMessageAsync(adminID, $"Добавил пользователю {chatID} {days} дней");
+                }
+            }
+        }
+
+        /// <summary>
         ///  проверка есть ли в бд юзер
         /// </summary>
         /// <param name="chatID"></param>
@@ -695,9 +728,12 @@ namespace TelegramBotProject.Services
             int users_all_socks_servers = 0;
             foreach (var item in TgBotHostedService.SOCKS_SERVERS_LIST)
             {
-                var temp_server = socksResolver(item);
-                var count_users = await temp_server.GetFileUsersAsync("test", false);
-                users_all_socks_servers += count_users;
+                if (item != "SOCKS_1")
+                {
+                    var temp_server = socksResolver(item);
+                    var count_users = await temp_server.GetFileUsersAsync("test", false);
+                    users_all_socks_servers += count_users;
+                }
             }
 
             users_all_servers = users_all_ipsec_mob_servers + users_all_ipsec_comp_servers + users_all_socks_servers;

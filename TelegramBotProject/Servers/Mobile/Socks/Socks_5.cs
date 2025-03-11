@@ -8,7 +8,7 @@ namespace TelegramBotProject.Servers.Mobile.Socks
     {
         public Socks_5(ILogger<Socks_5> logger) : base(logger)
         {
-            ServerSocks = "http://45.150.32.58:8433";
+            ServerSocks = "http://45.82.254.142:8433";
             NameCertainSocks = TgBotHostedService.SOCKS_SERVERS_LIST[4]; // SOCKS_5
         }
     }

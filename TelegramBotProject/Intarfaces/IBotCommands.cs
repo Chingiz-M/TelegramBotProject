@@ -19,6 +19,7 @@ namespace TelegramBotProject.Intarfaces
         Task BotTakeOffDBPromoAsync(ITelegramBotClient botClient, long chatID);
         Task BotMarkBlatnoiAsync(ITelegramBotClient botClient, long chatID, long adminID);
         Task BotAddDaysToUserAsync(ITelegramBotClient botClient, long chatID, int days, long adminID);
+        Task BotRemoveDaysToUserAsync(ITelegramBotClient botClient, long chatID, int days, long adminID);
         Task BotShiftNearestUsersDateAsync(ITelegramBotClient botClient, int diapason, int dayslong, long adminID);
         Task BotGetAllCountUsersAsync(ITelegramBotClient botClient, long adminID);
     }
