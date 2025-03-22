@@ -45,8 +45,8 @@ namespace TelegramBotProject.TelegramBot
         static public int Price_1_Month_comp { get; } = 119;
         static public int Price_3_Month_mobile { get; } = 249;
         static public int Price_3_Month_comp { get; } = 299;
-        static public int Comp_CountINServer { get; set; } = 45; // максимум количесвто человек на сервере
-        static public int CountINServerIpSec { get; set; } = 66; // максимум количесвто человек на сервере
+        static public int Comp_CountINServer { get; set; } = 40; // максимум количесвто человек на сервере
+        static public int CountINServerIpSec { get; set; } = 50; // максимум количесвто человек на сервере
         static public int CountINServerSocks { get; set; } = 25; // максимум количесвто человек на сервере
         static public string PromocodeName { get; set; } = "DE";// промокод для участия в акциях
         static public bool PROMOCODE_MODE { get; set; } = true; // переменная для включения и отключения действия промокода
@@ -56,12 +56,13 @@ namespace TelegramBotProject.TelegramBot
         /// <summary>
         /// Список доступных серваков ipsec ПОРЯДОК ВАЖЕН ТАК КАК СОЗДАЮТСЯ NAMECERTAIN В КАЖДОМ КЛАССЕ
         /// </summary>
-        public static readonly string[] Comp_IPSEC_SERVERS_LIST = { "Comp_IPSEC_1", "Comp_IPSEC_2" };
+        public static readonly string[] Comp_IPSEC_SERVERS_LIST = { "Comp_IPSEC_1", "Comp_IPSEC_2", "Comp_IPSEC_3" };
         /// <summary>
         /// Список доступных серваков ipsec ПОРЯДОК ВАЖЕН ТАК КАК СОЗДАЮТСЯ NAMECERTAIN В КАЖДОМ КЛАССЕ
         /// </summary>
         public static readonly string[]  IPSEC_SERVERS_LIST 
-            = { "IPSEC_1", "IPSEC_2", "IPSEC_3", "IPSEC_4", "IPSEC_5", "IPSEC_6", "IPSEC_7", "IPSEC_8", "IPSEC_9", "IPSEC_10" };
+            = { "IPSEC_1", "IPSEC_2", "IPSEC_3", "IPSEC_4", "IPSEC_5", "IPSEC_6", "IPSEC_7", "IPSEC_8", "IPSEC_9", "IPSEC_10", "IPSEC_11",
+                 "IPSEC_12", "IPSEC_13", "IPSEC_14"};
         /// <summary>
         /// Список доступных серваков socks ПОРЯДОК ВАЖЕН ТАК КАК СОЗДАЮТСЯ NAMECERTAIN В КАЖДОМ КЛАССЕ
         /// </summary>

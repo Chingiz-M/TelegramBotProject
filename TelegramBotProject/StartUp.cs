@@ -98,6 +98,10 @@ namespace TelegramBotProject
                   services.AddTransient<IPsec_8>();
                   services.AddTransient<IPsec_9>();
                   services.AddTransient<IPsec_10>();
+                  services.AddTransient<IPsec_11>();
+                  services.AddTransient<IPsec_12>();
+                  services.AddTransient<IPsec_13>();
+                  services.AddTransient<IPsec_14>();
 
                   services.AddTransient<IPSecServiceResolver>(serviceProvider => key =>
                   {
@@ -125,6 +129,14 @@ namespace TelegramBotProject
                               return serviceProvider.GetService<IPsec_9>();
                           case "IPSEC_10":
                               return serviceProvider.GetService<IPsec_10>();
+                          case "IPSEC_11":
+                              return serviceProvider.GetService<IPsec_11>();
+                          case "IPSEC_12":
+                              return serviceProvider.GetService<IPsec_12>();
+                          case "IPSEC_13":
+                              return serviceProvider.GetService<IPsec_13>();
+                          case "IPSEC_14":
+                              return serviceProvider.GetService<IPsec_14>();
                           default:
                               throw new KeyNotFoundException(); // or maybe return null, up to you
                       }
@@ -133,6 +145,7 @@ namespace TelegramBotProject
                   // COMP IPSEC SETTINGS
                   services.AddTransient<Comp_IPsec_1>();
                   services.AddTransient<Comp_IPsec_2>();
+                  services.AddTransient<Comp_IPsec_3>();
 
                   services.AddTransient<Comp_IPSecServiceResolver>(serviceProvider => key =>
                   {
@@ -142,6 +155,8 @@ namespace TelegramBotProject
                               return serviceProvider.GetService<Comp_IPsec_1>();
                           case "Comp_IPSEC_2":
                               return serviceProvider.GetService<Comp_IPsec_2>();
+                          case "Comp_IPSEC_3":
+                              return serviceProvider.GetService<Comp_IPsec_3>();
                           default:
                               throw new KeyNotFoundException(); // or maybe return null, up to you
                       }

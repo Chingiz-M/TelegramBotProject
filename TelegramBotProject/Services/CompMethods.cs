@@ -337,7 +337,7 @@ namespace TelegramBotProject.Services
             chatId: chatID,
             video: "BAACAgIAAxkDAAJhx2b5vpGslhzoKzmPoNWNRnB_BgS1AAJzXgAC04TRS4cv1mJ9i_udNgQ"); // fileid video NamelessNetwork
             //video: "BAACAgIAAxkDAAII82bzHTZUOvZ7y0LiuCGpDP-Lg9ytAAIKYAACcWGYS99SjiH5Q4v8NgQ"); // fileid video TestNamelessVPN
-                                                                                               //video: new InputOnlineFile(content: stream, fileName: $"Тестовая инструкция"));
+            //video: new InputOnlineFile(content: stream, fileName: $"Тестовая инструкция"));
 
             //using (Stream streamf = System.IO.File.OpenRead(@"C:\Users\chin1\source\repos\TgBotNamelessNetwork\VideoInstructions\ikev2_config_import_Win.cmd"))
             //{
