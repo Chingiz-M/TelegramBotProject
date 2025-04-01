@@ -1,0 +1,48 @@
+services:
+  telegrambotproject:
+    image: telegrambotproject
+    build:
+      context: .
+      dockerfile: TelegramBotProject/Dockerfile
+    networks:
+      - bot_network
+    depends_on:
+      - db
+    volumes:
+      - ./Logs_Bot:/TelegramBotProject/Logs
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: users_db
+      POSTGRES_HOST_AUTH_METHOD: md5
+    networks:
+      - bot_network
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - "8080:80"
+    networks:
+      - bot_network
+    depends_on:
+      - db
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+
+networks:
+  bot_network:

@@ -231,7 +231,7 @@ namespace TelegramBotProject.Services
                         
                         user.ProviderPaymentChargeId = payment?.ProviderPaymentChargeId;
 
-                        db.Users.Update(user);
+                        //db.Users.Update(user);
                         await db.SaveChangesAsync();
 
                         await botClient.SendTextMessageAsync(chatID, $"Оплата прошла успешно! ✅\n\n" +
@@ -501,7 +501,7 @@ namespace TelegramBotProject.Services
 
                 if (user != null)
                 {
-                    user.DateNextPayment = user.DateNextPayment.AddDays(days);
+                    user.DateNextPayment = user.DateNextPayment.AddDays(-days);
                     await db.SaveChangesAsync();
 
                     await botClient.SendTextMessageAsync(1278048494, $"Добавил пользователю {chatID} {days} дней");
@@ -622,7 +622,7 @@ namespace TelegramBotProject.Services
         {
             using (TgVpnbotContext db = new TgVpnbotContext())
             {
-                var users_payment = await db.Users.Where(u => u.DateNextPayment.Date < DateTime.Now.AddDays(diapason).Date && u.Status == "active" && u.Blatnoi == false).ToListAsync().ConfigureAwait(false);
+                var users_payment = await db.Users.Where(u => u.DateNextPayment.Date < DateTime.UtcNow.AddDays(diapason).Date && u.Status == "active" && u.Blatnoi == false).ToListAsync().ConfigureAwait(false);
 
                 int count = 0;
                 foreach (var user in users_payment) // здесь все по датам включая chatid для компа и для телефонов

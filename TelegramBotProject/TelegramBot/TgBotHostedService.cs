@@ -102,12 +102,12 @@ namespace TelegramBotProject.TelegramBot
                             }
                         if (message.Chat.Id > 0)
                         {
-                            //await botClient.SendTextMessageAsync(message.Chat, "Бот временно недоступен 😵\n Уже работаем над починкой 🛠");
+                            await botClient.SendTextMessageAsync(message.Chat, "Бот временно недоступен 😵\n Проходят технические настройки 🛠");
 
                         }
                     }
                     if (button != null && button.Message.Chat.Id > 0)
-                        await botClient.SendTextMessageAsync(button.Message.Chat.Id, "Бот временно недоступен 😵.\n Уже работаем над починкой 🛠");
+                        await botClient.SendTextMessageAsync(button.Message.Chat.Id, "Бот временно недоступен 😵.\n Проходят технические настройки 🛠");
                     return;
                 }
                 #endregion
@@ -768,9 +768,19 @@ namespace TelegramBotProject.TelegramBot
                             if (user != null)
                             {
                                 user.Status = "nonactive";
-                                user.DateDisconnect = DateTime.Now;
+                                user.DateDisconnect = DateTime.UtcNow;
 
-                                db.Users.Update(user);
+                                // Преобразование в UTC, если необходимо
+                                //if (user.DateCreate.Kind == DateTimeKind.Unspecified)
+                                //    user.DateCreate = DateTime.SpecifyKind(user.DateCreate, DateTimeKind.Utc);
+
+                                //if (user.DateNextPayment.Kind == DateTimeKind.Unspecified)
+                                //    user.DateNextPayment = DateTime.SpecifyKind(user.DateNextPayment, DateTimeKind.Utc);
+
+                                //Console.WriteLine($"DateDisconnect Kind: {user.DateDisconnect?.Kind}"); // Проверка Kind
+                                //Console.WriteLine($"DateCreate Kind: {user.DateCreate.Kind}"); // Проверка Kind
+                                //Console.WriteLine($"DateNext Kind: {user.DateNextPayment.Kind}"); // Проверка Kind
+                                //db.Users.Update(user);
                                 await db.SaveChangesAsync();
                             }
                             await botClient.SendTextMessageAsync(1278048494, $"Info about IPsec {clientID}: {resDelete}"); // присылаю себе ответ по удалению
@@ -808,10 +818,11 @@ namespace TelegramBotProject.TelegramBot
 
                             if (user != null)
                             {
+                                DateTime? datetemp = DateTime.Now;
                                 user.Status = "nonactive";
-                                user.DateDisconnect = DateTime.Now;
+                                user.DateDisconnect = DateTime.UtcNow;
 
-                                db.Users.Update(user);
+                                //db.Users.Update(user);
                                 await db.SaveChangesAsync();
                             }
                             await botClient.SendTextMessageAsync(1278048494, $"Info about IPsec {comp_chatID}: {resDelete}"); // присылаю себе ответ по удалению
@@ -1015,10 +1026,11 @@ namespace TelegramBotProject.TelegramBot
 
                             if (user != null)
                             {
+                                DateTime? datetemp = DateTime.Now;
                                 user.Status = "nonactive";
-                                user.DateDisconnect = DateTime.Now;
+                                user.DateDisconnect = DateTime.UtcNow;
 
-                                db.Users.Update(user);
+                                //db.Users.Update(user);
                                 await db.SaveChangesAsync();
                             }
                             await botClient.SendTextMessageAsync(1278048494, $"Info about Socks {clientID}: {res}"); // присылаю себе ответ по удалению

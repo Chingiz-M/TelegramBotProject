@@ -5,14 +5,61 @@ namespace TelegramBotProject.Entities;
 
 public class UserDB
 {
+    /// <summary>
+    /// поле для даты след оплаты
+    /// </summary>
+    private DateTime _dateNextPayment;
+    /// <summary>
+    /// поле для даты отключения
+    /// </summary>
+    private DateTime? _dateDisconnect;
+
     public int Id { get; set; }
     public long ChatID { get; set; }
     public string Status { get; set; } = "active";
     public string? FirstName { get; set; }
     public string? Username { get; set; }
-    public DateTime DateCreate { get; set; } = DateTime.Now;
-    public DateTime? DateDisconnect { get; set; }
-    public DateTime DateNextPayment { get; set; } = DateTime.Now.AddDays(14); // по умолчанию месяц пробный период
+    public DateTime DateCreate { get; set; } = DateTime.UtcNow;
+    public DateTime? DateDisconnect
+    {
+        get => _dateDisconnect;
+        set
+        {
+            // Проверка на null
+            if (value.HasValue)
+            {
+                // Проверка и установка Kind
+                if (value.Value.Kind == DateTimeKind.Unspecified)
+                {
+                    _dateDisconnect = DateTime.SpecifyKind(value.Value, DateTimeKind.Utc);
+                }
+                else
+                {
+                    _dateDisconnect = value;
+                }
+            }
+            else
+            {
+                _dateDisconnect = null; // Если значение null, просто присваиваем null
+            }
+        }
+    }
+    public DateTime DateNextPayment
+    {
+        get => _dateNextPayment;
+        set
+        {
+            // Проверка и установка Kind
+            if (value.Kind == DateTimeKind.Unspecified)
+            {
+                _dateNextPayment = DateTime.SpecifyKind(value, DateTimeKind.Utc);
+            }
+            else
+            {
+                _dateNextPayment = value;
+            }
+        }
+    }
     public string? ProviderPaymentChargeId { get; set; } // номер транзакции. По нему можно будет найти платёж в личном кабинете.
     public string Role { get; set; } = "user";
     public bool Blatnoi { get; set; } = false;
@@ -25,4 +72,9 @@ public class UserDB
     public string ServiceAddress { get; set; } // адрес сервака
     public string TypeOfDevice { get; set; } // вид устройства (mobile, computer)
     public bool UsePromocode { get; set; } = false; // использование промокода
+
+    public UserDB()
+    {
+        DateNextPayment = DateTime.UtcNow.AddDays(14);
+    }
 }

@@ -231,10 +231,10 @@ namespace TelegramBotProject.Services
                 {
                     // 1 MONTH
                     if (match_.Groups["period"].ToString() == NamesInlineButtons.Month_1)
-                        user.DateNextPayment = DateTime.Now.AddMonths(1);
+                        user.DateNextPayment = DateTime.UtcNow.AddMonths(1);
                     // 3 MONTH
                     else if (match_.Groups["period"].ToString() == NamesInlineButtons.Month_3)
-                        user.DateNextPayment = DateTime.Now.AddMonths(3);
+                        user.DateNextPayment = DateTime.UtcNow.AddMonths(3);
 
                     await botClient.SendTextMessageAsync(chatID, $"Оплата прошла успешно! ✅ (ПК)\n\n" +
                         $"Ваш ID = " + chatID.ToString() + $". Подписка активна до {user.DateNextPayment.ToString("dd-MM-yyyy")} г. включительно\n\n" +

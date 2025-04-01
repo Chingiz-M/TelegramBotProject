@@ -43,17 +43,17 @@ namespace TelegramBotProject.Quartz
                 using (TgVpnbotContext db = new TgVpnbotContext())
                 {
                     // Получаю всех пользователей у которых через 3 дня конец подписки и шлю им инвойс
-                    var users_payment_3 = await db.Users.Where(u => u.DateNextPayment.Date == DateTime.Now.AddDays(2).Date && u.Status == "active" && u.Blatnoi == false).ToListAsync().ConfigureAwait(false);
-                    var users_payment_2 = await db.Users.Where(u => u.DateNextPayment.Date == DateTime.Now.AddDays(1).Date && u.Status == "active" && u.Blatnoi == false).ToListAsync().ConfigureAwait(false);
-                    var users_payment_1 = await db.Users.Where(u => u.DateNextPayment.Date == DateTime.Now.Date && u.Status == "active" && u.Blatnoi == false).ToListAsync().ConfigureAwait(false);
-                    var users_payment_0 = await db.Users.Where(u => u.DateNextPayment.Date == DateTime.Now.AddDays(-1).Date && u.Status == "active" && u.Blatnoi == false).ToListAsync().ConfigureAwait(false);
+                    var users_payment_3 = await db.Users.Where(u => u.DateNextPayment.Date == DateTime.UtcNow.AddDays(2).Date && u.Status == "active" && u.Blatnoi == false).ToListAsync().ConfigureAwait(false);
+                    var users_payment_2 = await db.Users.Where(u => u.DateNextPayment.Date == DateTime.UtcNow.AddDays(1).Date && u.Status == "active" && u.Blatnoi == false).ToListAsync().ConfigureAwait(false);
+                    var users_payment_1 = await db.Users.Where(u => u.DateNextPayment.Date == DateTime.UtcNow.Date && u.Status == "active" && u.Blatnoi == false).ToListAsync().ConfigureAwait(false);
+                    var users_payment_0 = await db.Users.Where(u => u.DateNextPayment.Date == DateTime.UtcNow.AddDays(-1).Date && u.Status == "active" && u.Blatnoi == false).ToListAsync().ConfigureAwait(false);
 
                     int count_continue = users_payment_3.Count + users_payment_2.Count + users_payment_1.Count;
                     int count_deleted_users = 0;
 
-                    var date_3 = DateTime.Now.AddDays(3).ToString("dd-MM-yyyy");
-                    var date_2 = DateTime.Now.AddDays(2).ToString("dd-MM-yyyy");
-                    var date_1 = DateTime.Now.AddDays(1).ToString("dd-MM-yyyy");
+                    var date_3 = DateTime.UtcNow.AddDays(3).ToString("dd-MM-yyyy");
+                    var date_2 = DateTime.UtcNow.AddDays(2).ToString("dd-MM-yyyy");
+                    var date_1 = DateTime.UtcNow.AddDays(1).ToString("dd-MM-yyyy");
 
                     foreach (var user in users_payment_3) // здесь все по датам включая chatid для компа и для телефонов
                     {
@@ -157,10 +157,11 @@ namespace TelegramBotProject.Quartz
                                 var res = await socksServer.DeleteUserAsync(user.ServiceKey);
                             }
 
+                            DateTime? datetemp = DateTime.Now;
                             user.Status = "nonactive";
-                            user.DateDisconnect = DateTime.Now;
+                            user.DateDisconnect = DateTime.UtcNow;
 
-                            db.Users.Update(user);
+                            //db.Users.Update(user);
                             await db.SaveChangesAsync();
 
                             if (user.TypeOfDevice == NamesInlineButtons.StartComp) // если комп то нужно не обьебаться с chatid поделить на число
@@ -175,7 +176,10 @@ namespace TelegramBotProject.Quartz
                             logger.LogInformation("Конфиг пользователя удален, chatid: {chatid}", real_chatid);
                             count_deleted_users++;
                         }
-                        catch (Exception ex) { logger.LogInformation("Ошибка в планировщике payment 0, exeption: {ex}", ex); }                      
+                        catch (Exception ex) { 
+                            logger.LogInformation("Ошибка в планировщике payment 0, exeption: {ex}", ex);
+                            await TgBotHostedService.bot.SendTextMessageAsync(1278048494, "Ошибка в удалении Планировщика: " + ex.Message);
+                        }                      
                     }
                     await TgBotHostedService.bot.SendTextMessageAsync(1278048494, $"Всего должны продлить {count_continue} человек");
                     await TgBotHostedService.bot.SendTextMessageAsync(1278048494, $"Всего удалено {count_deleted_users} человек ({users_payment_0.Count})");

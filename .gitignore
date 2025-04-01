@@ -366,3 +366,6 @@ FodyWeavers.xsd
 appsettings.json
 
 111.txt
+
+/.env
+/TelegramBotProject/.env

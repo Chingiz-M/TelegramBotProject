@@ -341,10 +341,10 @@ namespace TelegramBotProject.Services
                 {
                     // 1 MONTH
                     if (match_.Groups["period"].ToString() == NamesInlineButtons.Month_1)
-                        user.DateNextPayment = DateTime.Now.AddMonths(1);
+                        user.DateNextPayment = DateTime.UtcNow.AddMonths(1);
                     // 3 MONTH
                     else if (match_.Groups["period"].ToString() == NamesInlineButtons.Month_3)
-                        user.DateNextPayment = DateTime.Now.AddMonths(3);
+                        user.DateNextPayment = DateTime.UtcNow.AddMonths(3);
 
                     await botClient.SendTextMessageAsync(chatID, $"Оплата прошла успешно! ✅ (Мобильный)\n\n" +
                         $"Ваш ID = " + chatID.ToString() + $". Подписка активна до {user.DateNextPayment.ToString("dd-MM-yyyy")} г. включительно\n\n" +
@@ -431,8 +431,8 @@ namespace TelegramBotProject.Services
             //await using Stream stream = System.IO.File.OpenRead(@"C:\Users\chin1\source\repos\TgBotNamelessNetwork\VideoInstructions\instruction_IOS_IPSEC_NEW.mp4");
             var mes = await botClient.SendVideoAsync(
             chatId: chatID,
-            video: "BAACAgIAAxkDAAIUUWYHJaIibWl1V3tdreo9O829c6EvAAKAQAACT21BSKKYYspolrvkNAQ"); // fileid video ios ipsec NamelessNetwork
-            //video: "BAACAgIAAxkBAAPXZJ9ombTpDVjZdPbUrIUnqI_H4KMAAjA0AAL0QfhIJJN1oofbubovBA"); // fileid video ios ipsec TestNamelessVPN
+            //video: "BAACAgIAAxkDAAIUUWYHJaIibWl1V3tdreo9O829c6EvAAKAQAACT21BSKKYYspolrvkNAQ"); // fileid video ios ipsec NamelessNetwork
+            video: "BAACAgIAAxkBAAPXZJ9ombTpDVjZdPbUrIUnqI_H4KMAAjA0AAL0QfhIJJN1oofbubovBA"); // fileid video ios ipsec TestNamelessVPN
             //video: new InputOnlineFile(content: stream, fileName: $"Тестовая инструкция"));
 
             await ipsecServer.CreateUserConfigAsync(botClient, chatID, "getconf", "mobileconfig", NamesInlineButtons.StartMobile); // Отправка данных на сервер и формирование конфига. Отсылка готового конфига пользователю

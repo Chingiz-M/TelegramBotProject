@@ -21,8 +21,12 @@ public partial class TgVpnbotContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         var connection = StartUp.GetTokenfromConfig("DBConnection");
-        optionsBuilder.UseSqlite(connection);
+        //optionsBuilder.UseSqlite(connection);
+        optionsBuilder.UseNpgsql(connection);
     }
 
-    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<UserDB>().ToTable("users");
+    }
 }
