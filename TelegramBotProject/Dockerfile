@@ -24,4 +24,5 @@ RUN dotnet publish "./TelegramBotProject.csproj" -c $BUILD_CONFIGURATION -o /app
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+RUN mkdir -p /Logs
 ENTRYPOINT ["dotnet", "TelegramBotProject.dll"]

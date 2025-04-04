@@ -138,7 +138,7 @@ namespace TelegramBotProject.TelegramBot
 
                     //if (message.Chat.Id != 1278048494) // для разработки
                     //{
-                    //    await botClient.SendTextMessageAsync(message.Chat, "Бот временно недоступен 😵\n Вернемся в ближайшее время 🛠");
+                    //    //await botClient.SendTextMessageAsync(message.Chat, "Бот временно недоступен 😵\n Вернемся в ближайшее время 🛠");
                     //    return;
                     //}
 

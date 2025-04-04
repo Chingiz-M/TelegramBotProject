@@ -176,10 +176,7 @@ namespace TelegramBotProject.Quartz
                             logger.LogInformation("Конфиг пользователя удален, chatid: {chatid}", real_chatid);
                             count_deleted_users++;
                         }
-                        catch (Exception ex) { 
-                            logger.LogInformation("Ошибка в планировщике payment 0, exeption: {ex}", ex);
-                            await TgBotHostedService.bot.SendTextMessageAsync(1278048494, "Ошибка в удалении Планировщика: " + ex.Message);
-                        }                      
+                        catch (Exception ex) { logger.LogInformation("Ошибка в планировщике payment 0, exeption: {ex}", ex);}                      
                     }
                     await TgBotHostedService.bot.SendTextMessageAsync(1278048494, $"Всего должны продлить {count_continue} человек");
                     await TgBotHostedService.bot.SendTextMessageAsync(1278048494, $"Всего удалено {count_deleted_users} человек ({users_payment_0.Count})");
