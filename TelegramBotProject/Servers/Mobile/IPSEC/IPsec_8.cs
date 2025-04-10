@@ -8,7 +8,7 @@ namespace TelegramBotProject.Servers.Mobile.IPSEC
     {
         public IPsec_8(ILogger<IPsec_8> logger) : base(logger)
         {
-            ServerIPSec = "https://138.124.90.54:8433";
+            ServerIPSec = "https://89.221.225.114:8433";
             NameCertainIPSec = TgBotHostedService.IPSEC_SERVERS_LIST[7]; // IPSEC_8
         }
     }

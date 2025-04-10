@@ -1,0 +1,11 @@
+{"@t":"2025-04-10T16:44:07.2892749Z","@m":"Запущен бот \"TestNN\"","@i":"ccc2ee18","botName":"TestNN"}
+{"@t":"2025-04-10T16:44:07.7455356Z","@m":"Initialized Scheduler Signaller of type: Quartz.Core.SchedulerSignalerImpl","@i":"d6ab0d5f","SourceContext":"Quartz.Core.SchedulerSignalerImpl"}
+{"@t":"2025-04-10T16:44:07.7512703Z","@m":"Quartz Scheduler created","@i":"389d80b0","SourceContext":"Quartz.Core.QuartzScheduler"}
+{"@t":"2025-04-10T16:44:07.7539350Z","@m":"JobFactory set to: Quartz.Simpl.MicrosoftDependencyInjectionJobFactory","@i":"17471663","SourceContext":"Quartz.Core.QuartzScheduler"}
+{"@t":"2025-04-10T16:44:07.7568093Z","@m":"RAMJobStore initialized.","@i":"8c5a21db","SourceContext":"Quartz.Simpl.RAMJobStore"}
+{"@t":"2025-04-10T16:44:07.7598093Z","@m":"Quartz Scheduler 3.8.0.0 - 'QuartzScheduler' with instanceId 'NON_CLUSTERED' initialized","@i":"e7453c6d","SourceContext":"Quartz.Impl.StdSchedulerFactory"}
+{"@t":"2025-04-10T16:44:07.7638427Z","@m":"Using thread pool 'Quartz.Simpl.DefaultThreadPool', size: 10","@i":"7942d54d","SourceContext":"Quartz.Impl.StdSchedulerFactory"}
+{"@t":"2025-04-10T16:44:07.7686323Z","@m":"Using job store 'Quartz.Simpl.RAMJobStore', supports persistence: False, clustered: False","@i":"46d3fae1","SourceContext":"Quartz.Impl.StdSchedulerFactory"}
+{"@t":"2025-04-10T16:44:07.8254030Z","@m":"Adding 1 jobs, 1 triggers.","@i":"3c519c58","SourceContext":"Quartz.ContainerConfigurationProcessor"}
+{"@t":"2025-04-10T16:44:07.8346601Z","@m":"Adding job: DEFAULT.MessageSenderJob","@i":"bc18f112","SourceContext":"Quartz.ContainerConfigurationProcessor"}
+{"@t":"2025-04-10T16:44:07.9506483Z","@m":"Scheduler QuartzScheduler_$_NON_CLUSTERED started.","@i":"51b2cfb9","SourceContext":"Quartz.Core.QuartzScheduler"}

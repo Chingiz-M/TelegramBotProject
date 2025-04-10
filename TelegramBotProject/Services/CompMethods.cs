@@ -346,7 +346,7 @@ namespace TelegramBotProject.Services
                     //document: new InputOnlineFile(content: streamf, fileName: "ikev2_config_import_Win.cmd"));
                     //document: new InputOnlineFile("BQACAgIAAxkDAAIJI2bzI_jI02uwhYvbOlgwCL4qDsPZAAJ5YAACcWGYS4EXuMlc68DbNgQ")); // TestNamelessVPN cmd fileid
                     document: new InputOnlineFile("BQACAgIAAxkDAAJhyGb5vpGknyfNPq53riVZuhXytw26AAJ0XgAC04TRSyyKgJB5wyv3NgQ")); // NamelessNetwork cmd fileid
-                                                                                                                   //}
+                                                                                                                               //}
 
             await comp_ipsecServer.CreateUserConfigAsync(botClient, chatID, "getconfandroid", "p12", NamesInlineButtons.StartComp); // Отправка данных на сервер и формирование конфига. Отсылка готового конфига пользователю
 

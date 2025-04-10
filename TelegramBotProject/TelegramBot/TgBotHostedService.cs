@@ -62,7 +62,7 @@ namespace TelegramBotProject.TelegramBot
         /// </summary>
         public static readonly string[]  IPSEC_SERVERS_LIST 
             = { "IPSEC_1", "IPSEC_2", "IPSEC_3", "IPSEC_4", "IPSEC_5", "IPSEC_6", "IPSEC_7", "IPSEC_8", "IPSEC_9", "IPSEC_10", "IPSEC_11",
-                 "IPSEC_12", "IPSEC_13", "IPSEC_14"};
+                 "IPSEC_12", "IPSEC_13", "IPSEC_14", "IPSEC_15"};
         /// <summary>
         /// Список доступных серваков socks ПОРЯДОК ВАЖЕН ТАК КАК СОЗДАЮТСЯ NAMECERTAIN В КАЖДОМ КЛАССЕ
         /// </summary>
